@@ -241,7 +241,10 @@ $("#contact-form").addEventListener("submit", async e => {
     for (const p of pts) {
       p.y -= p.v * p.z * devicePixelRatio; if (p.y < 0) { p.y = h; p.x = Math.random() * w; }
       const px = p.x + mx * 40 * p.z * devicePixelRatio, py = p.y + my * 40 * p.z * devicePixelRatio;
-      x.fillStyle = p.z > .8 ? "rgba(255,90,31,.9)" : `rgba(243,240,234,${p.z * .5})`;
+      // purple "aura" motes, a few ice-blue sparks, faint lilac dust
+      x.fillStyle = p.z > .9 ? "rgba(103,232,249,.85)" : p.z > .7 ? "rgba(139,92,246,.95)" : `rgba(196,181,253,${p.z * .45})`;
+      x.shadowColor = p.z > .7 ? (p.z > .9 ? "#22d3ee" : "#8b5cf6") : "transparent";
+      x.shadowBlur = p.z > .7 ? 10 * devicePixelRatio : 0;
       x.beginPath(); x.arc(px, py, p.z * 1.6 * devicePixelRatio, 0, 7); x.fill();
     }
     requestAnimationFrame(tick);
