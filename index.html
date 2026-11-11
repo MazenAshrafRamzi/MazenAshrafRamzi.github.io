@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mazen Ashraf | Game & XR Developer</title>
+<meta name="description" content="Mazen Ashraf Refaat: Unity game and XR developer. Playable WebGL demos, interactive pitches, simulations and motion work.">
+<meta property="og:title" content="Mazen Ashraf | Game & XR Developer">
+<meta property="og:description" content="Playable WebGL demos, interactive pitches, XR and simulations built in Unity.">
+<meta property="og:image" content="media/burger-lab.jpg">
+<meta name="theme-color" content="#0b0b0d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ff5a1f'/%3E%3Ctext x='32' y='43' font-family='Arial' font-weight='900' font-size='30' text-anchor='middle' fill='%230b0b0d'%3EMA%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+
+<header class="nav">
+  <a href="#top" class="logo">MA<span>.</span></a>
+  <nav>
+    <a href="#work">Work</a>
+    <a href="#experience">Experience</a>
+    <a href="#skills">Skills</a>
+    <a href="#contact">Contact</a>
+    <a href="cv/Mazen_Ashraf_CV.pdf" class="pill" download>CV ↓</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <p class="eyebrow mono"><span class="dot"></span> Open to Game, XR and Simulation roles</p>
+    <h1>Mazen Ashraf<br><span class="grad">builds worlds you can play.</span></h1>
+    <p class="lede">Unity developer making real-time 3D games, XR, training simulations and interactive brand pitches. Three of the projects below run right here in your browser.</p>
+    <div class="cta">
+      <a href="#work" class="btn primary">See the work</a>
+      <button class="btn" data-play="museum">▶ Play the museum demo</button>
+    </div>
+    <ul class="stats">
+      <li><b>3</b><span>playable WebGL demos</span></li>
+      <li><b>6</b><span>new projects in 2026</span></li>
+      <li><b>2</b><span>studio roles in Unity</span></li>
+      <li><b>PAAMS '25</b><span>Springer CCIS paper</span></li>
+    </ul>
+  </section>
+
+  <section id="work" class="section">
+    <div class="sec-head">
+      <h2>Selected work</h2>
+      <div class="filters" role="tablist">
+        <button class="chip on" data-f="all">All</button>
+        <button class="chip" data-f="play">Play in browser</button>
+        <button class="chip" data-f="interactive">Interactive</button>
+        <button class="chip" data-f="film">Film & motion</button>
+        <button class="chip" data-f="xr">XR & simulation</button>
+      </div>
+    </div>
+    <div id="grid" class="grid"></div>
+  </section>
+
+  <section id="experience" class="section">
+    <div class="sec-head"><h2>Experience</h2></div>
+    <ol class="timeline">
+      <li>
+        <div class="when mono">May 2026 – now</div>
+        <div><h3>Unity Developer · Al Motahida Education</h3>
+        <p>2D educational mini-games built into digital eBooks for the Ministry of Education, Sultanate of Oman: 15+ exercises with drag-and-drop, sorting, multi-select, gestures and canvas drawing. WebGL optimization, Arabic RTL text, an event-driven sequence architecture and state persistence.</p>
+        <p class="tags mono">C# · Unity · DOTween · Odin Inspector · WebGL · Git</p></div>
+      </li>
+      <li>
+        <div class="when mono">Jan – May 2026</div>
+        <div><h3>Unity Developer · 7P Software and Marketing</h3>
+        <p>An automotive testing training simulator: a multimeter and a tester with about 30 connection points that react to real component values, plus a tutorial level, authentication and progress-gated levels. 10+ assets made with AI generation and photogrammetry.</p>
+        <p class="tags mono">C# · Unity · Blender · Tripo3D · RealityScan</p></div>
+      </li>
+      <li>
+        <div class="when mono">2020 – 2025</div>
+        <div><h3>B.Sc. Computer Science & Engineering · German University in Cairo</h3>
+        <p>Bachelor project turned engineering drawings into XR-ready 3D models with computer vision and Blender. It was published at PAAMS 2025 (Springer CCIS).</p></div>
+      </li>
+    </ol>
+  </section>
+
+  <section id="skills" class="section">
+    <div class="sec-head"><h2>Toolbox</h2></div>
+    <div class="skills">
+      <div><h3 class="mono">Engine & XR</h3><p>Unity 6 · C# · URP · OpenXR · AR Foundation · XR Interaction Toolkit · ShaderGraph · uGUI / UI Toolkit · Input System · WebGL builds</p></div>
+      <div><h3 class="mono">Gameplay & architecture</h3><p>Event-driven systems · state machines · procedural meshes & animation · IK rigs · DOTween · editor tooling · performance & mobile optimization</p></div>
+      <div><h3 class="mono">3D & asset pipeline</h3><p>Blender · photogrammetry (RealityScan) · scan decimation & retopology · Meshy / Tripo3D · Mixamo · baking</p></div>
+      <div><h3 class="mono">Audio, film & web</h3><p>ElevenLabs & neural TTS · procedural audio · code-rendered motion graphics · ffmpeg · JavaScript · Node.js · PostgreSQL</p></div>
+    </div>
+  </section>
+
+  <section id="contact" class="section contact">
+    <div>
+      <h2>Let's make something<br>people want to touch.</h2>
+      <p class="muted">Hiring for Game, XR or Simulation work, or need an interactive pitch? Send a message here or reach me directly.</p>
+      <ul class="links">
+        <li><a href="mailto:mazenashraframzy@gmail.com">mazenashraframzy@gmail.com</a></li>
+        <li><a href="https://linkedin.com/in/mazen-ashraf-73b601277" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://github.com/MazenAshrafRamzi" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="cv/Mazen_Ashraf_CV.pdf" download>Download CV (PDF)</a></li>
+      </ul>
+    </div>
+    <form id="contact-form" class="form">
+      <label>Name<input name="name" required maxlength="120" autocomplete="name"></label>
+      <label>Email<input name="email" type="email" required maxlength="200" autocomplete="email"></label>
+      <label>Message<textarea name="message" required maxlength="4000" rows="5"></textarea></label>
+      <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="btn primary" type="submit">Send message</button>
+      <p id="form-status" class="muted small" role="status"></p>
+    </form>
+  </section>
+</main>
+
+<footer class="foot mono">© 2026 Mazen Ashraf Refaat · Built by hand, hosted on GitHub Pages</footer>
+
+<div id="modal" class="modal" hidden>
+  <div class="modal-bar">
+    <span id="modal-title"></span>
+    <span class="spacer"></span>
+    <button id="modal-fs" class="icon" title="Fullscreen">⛶</button>
+    <button id="modal-close" class="icon" title="Close">✕</button>
+  </div>
+  <div id="modal-body" class="modal-body"></div>
+</div>
+
+<script src="config.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
