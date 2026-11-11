@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0A0714">
+    <title>Tajriba's Menu</title>
+    <style>
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #0A0714;
+        touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+      #unity-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh; display: block; background: #0A0714; outline: none; }
+      #loader { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        background: radial-gradient(ellipse at 50% 40%, #1E1240 0%, #0A0714 65%); color: #F5F3FF; transition: opacity .45s ease;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif; }
+      #loader.done { opacity: 0; pointer-events: none; }
+      /* DNA helix: each rung is two dots and a bar, phase-shifted down the strand */
+      #helix { position: relative; width: 140px; height: 380px; margin-bottom: 28px; }
+      .rung { position: absolute; left: 0; right: 0; height: 15px; }
+      .rung i { position: absolute; top: 0; left: 50%; width: 15px; height: 15px; margin-left: -7.5px; border-radius: 50%; }
+      .rung .a { background: #22D3EE; box-shadow: 0 0 10px #22D3EE; animation: a 1.6s ease-in-out infinite; }
+      .rung .b { background: #7C3AED; box-shadow: 0 0 10px #7C3AED; animation: b 1.6s ease-in-out infinite; }
+      .rung s { position: absolute; top: 6.5px; left: 50%; height: 2px; width: 124px; margin-left: -62px; background: linear-gradient(90deg, #22D3EE, #7C3AED);
+        opacity: .35; animation: bar 1.6s ease-in-out infinite; }
+      @keyframes a { 0%,100% { transform: translateX(-62px) scale(1); opacity: 1 } 50% { transform: translateX(62px) scale(.55); opacity: .45 } }
+      @keyframes b { 0%,100% { transform: translateX(62px) scale(.55); opacity: .45 } 50% { transform: translateX(-62px) scale(1); opacity: 1 } }
+      @keyframes bar { 0%,50%,100% { transform: scaleX(1) } 25%,75% { transform: scaleX(0) } }
+      h1 { margin: 0; font-size: clamp(30px, 4.4vw, 46px); font-weight: 800; letter-spacing: -.01em; }
+      #note { margin-top: 8px; color: #A79FC8; font-size: 17px; }
+      #bar { margin-top: 20px; width: min(260px, 70vw); height: 4px; border-radius: 2px; background: #2A1F45; overflow: hidden; }
+      #fill { width: 0; height: 100%; background: #22D3EE; transition: width .2s ease; }
+      #error { display: none; margin-top: 16px; max-width: 80vw; color: #FCA5A5; text-align: center; font-size: 15px; }
+      @media (prefers-reduced-motion: reduce) { .rung i, .rung s { animation-duration: 6s } }
+    </style>
+  </head>
+  <body>
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+    <div id="loader" role="status" aria-live="polite">
+      <div id="helix" aria-hidden="true"></div>
+      <h1>Tajriba's Menu</h1>
+      <div id="note">Loading <span id="pct">0</span>%</div>
+      <div id="bar"><div id="fill"></div></div>
+      <div id="error"></div>
+    </div>
+    <script>
+      (function () {
+        var h = document.getElementById("helix");
+        for (var i = 0; i < 18; i++) {
+          var r = document.createElement("div"); r.className = "rung"; r.style.top = (i * 21) + "px";
+          var d = (-i * 0.11) + "s";
+          r.innerHTML = '<s style="animation-delay:' + d + '"></s><i class="a" style="animation-delay:' + d + '"></i><i class="b" style="animation-delay:' + d + '"></i>';
+          h.appendChild(r);
+        }
+      })();
+    </script>
+    <script src="Build/Tajriba WebGL.loader.js"></script>
+    <script>
+      var canvas = document.querySelector("#unity-canvas");
+      function showError(message) { var e = document.querySelector("#error"); e.textContent = message; e.style.display = "block"; }
+      createUnityInstance(canvas, {
+        arguments: [],
+        dataUrl: "Build/Tajriba WebGL.data.unityweb",
+        frameworkUrl: "Build/Tajriba WebGL.framework.js.unityweb",
+        codeUrl: "Build/Tajriba WebGL.wasm.unityweb",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "your creative team",
+        productName: "Tajriba's Menu",
+        productVersion: "1.0.0",
+        autoSyncPersistentDataPath: true,   // keep the cart and saved items between visits
+        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+        showBanner: function (msg, type) { if (type === "error") showError(msg); },
+      }, function (progress) {
+        var p = Math.round(progress * 100);
+        document.querySelector("#fill").style.width = p + "%";
+        document.querySelector("#pct").textContent = p;
+      }).then(function () {
+        document.querySelector("#loader").classList.add("done");
+        canvas.focus();
+      }).catch(function (message) { showError(message); });
+    </script>
+  </body>
+</html>
