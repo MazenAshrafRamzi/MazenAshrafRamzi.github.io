@@ -407,12 +407,20 @@ $("#contact-form").addEventListener("submit", async e => {
     const r = await fetch(API + "/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), signal: ctl.signal });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(j.error || `server error ${r.status}`);
-    st.textContent = "Thanks! Your message is in. I'll get back to you soon."; f.reset();
-    if (motion) G.fromTo(st, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: .9, ease: "elastic.out(1, .6)" });
+    // Swap the fields for a clear confirmation panel so the visitor can't miss it.
+    const sent = $("#form-sent");
+    $("#sent-name").textContent = String(data.name).trim().split(/\s+/)[0];
+    $("#sent-email").textContent = data.email;
+    st.textContent = ""; f.reset(); f.classList.add("is-sent"); sent.hidden = false; sent.focus({ preventScroll: true });
+    if (motion) G.fromTo(sent, { y: 14, opacity: 0, scale: .96 }, { y: 0, opacity: 1, scale: 1, duration: 1, ease: "elastic.out(1, .6)" });
   } catch (err) {
     const why = err.name === "AbortError" ? "the server took too long" : err.name === "TypeError" ? "network error" : err.message;
     st.innerHTML = `Couldn't send (${esc(why)}). Please email <a href="mailto:mazenashraframzy@gmail.com">mazenashraframzy@gmail.com</a>.`;
   } finally { clearTimeout(slow); clearTimeout(cap); btn.disabled = false; }
+});
+$("#send-another").addEventListener("click", () => {
+  const f = $("#contact-form");
+  f.classList.remove("is-sent"); $("#form-sent").hidden = true; f.querySelector("input[name=name]").focus();
 });
 
 /* ---------- background: WebGL aurora curtains ---------- */
