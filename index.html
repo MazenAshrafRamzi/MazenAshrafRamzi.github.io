@@ -7,61 +7,86 @@
 <meta name="description" content="Mazen Ashraf Refaat: Unity game and XR developer. Playable WebGL demos, interactive pitches, simulations and motion work.">
 <meta property="og:title" content="Mazen Ashraf | Game & XR Developer">
 <meta property="og:description" content="Playable WebGL demos, interactive pitches, XR and simulations built in Unity.">
-<meta property="og:image" content="media/burger-lab.jpg">
-<meta name="theme-color" content="#07060f">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%237c3aed'/%3E%3Ctext x='32' y='43' font-family='Arial' font-weight='900' font-size='30' text-anchor='middle' fill='%23ffffff'%3EMA%3C/text%3E%3C/svg%3E">
+<meta property="og:image" content="https://mazenashraframzy.github.io/media/burger-lab.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#03050a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0' y2='0'%3E%3Cstop offset='0' stop-color='%237dffb5'/%3E%3Cstop offset='.6' stop-color='%235ce1e6'/%3E%3Cstop offset='1' stop-color='%23a594ff' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%2303050a'/%3E%3Cpath d='M10 50 Q22 18 32 40 T54 30' stroke='url(%23g)' stroke-width='9' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<script>
+  // Hide the hero until main.js has set up its intro animation (no flash of the final state).
+  // Failsafe: show it after 3 s even if a script never arrives.
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.documentElement.classList.add("preload");
+    setTimeout(function () { document.documentElement.classList.remove("preload"); }, 3000);
+  }
+</script>
 </head>
 <body>
 <canvas id="bg" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="glow" aria-hidden="true"></div>
 
 <header class="nav">
-  <a href="#top" class="logo">MA<span>.</span></a>
+  <a href="#top" class="logo"><em>Mazen</em> Ashraf</a>
   <nav>
     <a href="#work">Work</a>
     <a href="#experience">Experience</a>
-    <a href="#skills">Skills</a>
-    <a href="#contact">Contact</a>
-    <a href="cv/Mazen_Ashraf_CV.pdf" class="pill" download>CV ↓</a>
+    <a href="#skills">Toolbox</a>
+    <a href="#contact" class="pill">Contact</a>
   </nav>
 </header>
 
 <main id="top">
   <section class="hero">
-    <p class="eyebrow mono"><span class="dot"></span> Open to Game, XR and Simulation roles</p>
-    <h1>Mazen Ashraf<br><span class="grad">builds worlds you can play.</span></h1>
-    <p class="lede">Unity developer making real-time 3D games, XR, training simulations and interactive brand pitches. Three of the projects below run right here in your browser.</p>
-    <div class="cta">
-      <a href="#work" class="btn primary">See the work</a>
-      <button class="btn" data-play="museum">▶ Play the museum demo</button>
+    <div class="hero-meta mono">
+      <span>Portfolio · Vol. 2026</span>
+      <span class="hide-sm">Cairo, Egypt · 30.04° N</span>
+      <span class="avail"><i class="dot"><i class="ring"></i></i>Open to Game, XR &amp; Simulation roles</span>
     </div>
-    <ul class="stats">
-      <li><b>3</b><span>playable WebGL demos</span></li>
-      <li><b>6</b><span>new projects in 2026</span></li>
-      <li><b>2</b><span>studio roles in Unity</span></li>
-      <li><b>PAAMS '25</b><span>Springer CCIS paper</span></li>
+
+    <h1 class="hero-title">
+      <span class="l1" data-split>Mazen Ashraf</span>
+      <span class="l2 serif" data-split><em>builds worlds you can <b>play.</b></em></span>
+    </h1>
+
+    <div class="hero-foot">
+      <p class="lede">Unity developer making real-time 3D games, XR, training simulations and interactive brand pitches. Three of the projects below run right here in your browser.</p>
+      <div class="cta">
+        <a href="#work" class="btn primary">See the work</a>
+        <button class="btn" data-play="museum">▶ Play the museum demo</button>
+      </div>
+    </div>
+
+    <ul class="facts mono">
+      <li><b>03</b>playable WebGL demos</li>
+      <li><b>06</b>new projects in 2026</li>
+      <li><b>02</b>studio roles in Unity</li>
+      <li><b>PAAMS ’25</b>Springer CCIS paper</li>
     </ul>
   </section>
 
   <section id="work" class="section">
     <div class="sec-head">
-      <h2>Selected work</h2>
-      <div class="filters" role="tablist">
-        <button class="chip on" data-f="all">All</button>
-        <button class="chip" data-f="play">Play in browser</button>
-        <button class="chip" data-f="interactive">Interactive</button>
-        <button class="chip" data-f="film">Film & motion</button>
-        <button class="chip" data-f="xr">XR & simulation</button>
+      <div><span class="idx mono">01 / Work</span><h2>Selected <em>work</em></h2></div>
+      <div class="filters" role="group" aria-label="Filter projects">
+        <span class="chip-ind" aria-hidden="true"></span>
+        <button class="chip on" data-f="all" aria-pressed="true">All</button>
+        <button class="chip" data-f="play" aria-pressed="false">Play in browser</button>
+        <button class="chip" data-f="interactive" aria-pressed="false">Interactive</button>
+        <button class="chip" data-f="film" aria-pressed="false">Film &amp; motion</button>
+        <button class="chip" data-f="xr" aria-pressed="false">XR &amp; simulation</button>
       </div>
     </div>
     <div id="grid" class="grid"></div>
   </section>
 
   <section id="experience" class="section">
-    <div class="sec-head"><h2>Experience</h2></div>
+    <div class="sec-head"><div><span class="idx mono">02 / Path</span><h2><em>Experience</em></h2></div></div>
+    <div class="tl"><span class="tl-line" aria-hidden="true"></span>
     <ol class="timeline">
       <li>
         <div class="when mono">May 2026 – now</div>
@@ -77,32 +102,31 @@
       </li>
       <li>
         <div class="when mono">2020 – 2025</div>
-        <div><h3>B.Sc. Computer Science & Engineering · German University in Cairo</h3>
+        <div><h3>B.Sc. Computer Science &amp; Engineering · German University in Cairo</h3>
         <p>Bachelor project turned engineering drawings into XR-ready 3D models with computer vision and Blender. It was published at PAAMS 2025 (Springer CCIS).</p></div>
       </li>
-    </ol>
+    </ol></div>
   </section>
 
   <section id="skills" class="section">
-    <div class="sec-head"><h2>Toolbox</h2></div>
+    <div class="sec-head"><div><span class="idx mono">03 / Tools</span><h2>The <em>toolbox</em></h2></div></div>
     <div class="skills">
-      <div><h3 class="mono">Engine & XR</h3><p>Unity 6 · C# · URP · OpenXR · AR Foundation · XR Interaction Toolkit · ShaderGraph · uGUI / UI Toolkit · Input System · WebGL builds</p></div>
-      <div><h3 class="mono">Gameplay & architecture</h3><p>Event-driven systems · state machines · procedural meshes & animation · IK rigs · DOTween · editor tooling · performance & mobile optimization</p></div>
-      <div><h3 class="mono">3D & asset pipeline</h3><p>Blender · photogrammetry (RealityScan) · scan decimation & retopology · Meshy / Tripo3D · Mixamo · baking</p></div>
-      <div><h3 class="mono">Audio, film & web</h3><p>ElevenLabs & neural TTS · procedural audio · code-rendered motion graphics · ffmpeg · JavaScript · Node.js · PostgreSQL</p></div>
+      <div><h3 class="mono">Engine &amp; XR</h3><p>Unity 6 · C# · URP · OpenXR · AR Foundation · XR Interaction Toolkit · ShaderGraph · uGUI / UI Toolkit · Input System · WebGL builds</p></div>
+      <div><h3 class="mono">Gameplay &amp; architecture</h3><p>Event-driven systems · state machines · procedural meshes &amp; animation · IK rigs · DOTween · editor tooling · performance &amp; mobile optimization</p></div>
+      <div><h3 class="mono">3D &amp; asset pipeline</h3><p>Blender · photogrammetry (RealityScan) · scan decimation &amp; retopology · Meshy / Tripo3D · Mixamo · baking</p></div>
+      <div><h3 class="mono">Audio, film &amp; web</h3><p>ElevenLabs &amp; neural TTS · procedural audio · code-rendered motion graphics · ffmpeg · JavaScript · Node.js · PostgreSQL</p></div>
     </div>
   </section>
 
   <section id="contact" class="section contact">
     <div>
-      <h2>Let's make something<br>people want to touch.</h2>
+      <span class="idx mono">04 / Contact</span>
+      <h2 class="big">Let’s make something <em>people want to touch.</em></h2>
       <p class="muted">Hiring for Game, XR or Simulation work, or need an interactive pitch? Send a message here or reach me directly.</p>
       <ul class="links">
         <li><a href="mailto:mazenashraframzy@gmail.com">mazenashraframzy@gmail.com</a></li>
-        <li><a href="https://linkedin.com/in/mazen-ashraf-73b601277" target="_blank" rel="noopener">LinkedIn</a></li>
-        <li><a href="https://github.com/MazenAshrafRamzi" target="_blank" rel="noopener">GitHub</a></li>
-        <li><a href="cv/Mazen_Ashraf_CV.pdf" download>Download CV (PDF)</a></li>
-      </ul>
+        <li><a href="https://linkedin.com/in/mazen-ashraf-73b601277" target="_blank" rel="noopener">LinkedIn ↗</a></li>
+        <li><a href="https://github.com/MazenAshrafRamzi" target="_blank" rel="noopener">GitHub ↗</a></li>      </ul>
     </div>
     <form id="contact-form" class="form">
       <label>Name<input name="name" required maxlength="120" autocomplete="name"></label>
@@ -115,19 +139,26 @@
   </section>
 </main>
 
-<footer class="foot mono">© 2026 Mazen Ashraf Refaat · Built by hand, hosted on GitHub Pages</footer>
+<footer class="foot mono">
+  <span>© 2026 Mazen Ashraf Refaat</span>
+  <span>Built by hand · WebGL aurora · GSAP</span>
+  <a href="#top">Back to top ↑</a>
+</footer>
 
-<div id="modal" class="modal" hidden>
+<div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
   <div class="modal-bar">
     <span id="modal-title"></span>
     <span class="spacer"></span>
-    <button id="modal-fs" class="icon" title="Fullscreen">⛶</button>
-    <button id="modal-close" class="icon" title="Close">✕</button>
+    <button id="modal-fs" class="icon" title="Fullscreen" aria-label="Fullscreen">⛶</button>
+    <button id="modal-close" class="icon" title="Close" aria-label="Close">✕</button>
   </div>
   <div id="modal-body" class="modal-body"></div>
 </div>
 
-<script src="config.js"></script>
-<script src="main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js" defer></script>
+<script src="config.js" defer></script>
+<script src="main.js" defer></script>
 </body>
 </html>
