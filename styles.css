@@ -203,6 +203,16 @@ h2 em { letter-spacing: -.01em; color: #d9f5e6; }
   border-radius: 0; padding: 10px 0; resize: vertical; transition: border-color .3s; }
 .form input:focus, .form textarea:focus { outline: none; border-color: var(--aurora); }
 .form .btn { justify-self: start; }
+/* success state: the fields give way to a confirmation panel */
+.form.is-sent > label, .form.is-sent > button[type=submit], .form.is-sent > #form-status { display: none; }
+.sent { display: grid; gap: 10px; justify-items: start; padding: 8px 0; outline: none; }
+.sent[hidden] { display: none; }
+.sent h3 { margin: 0; font: 600 26px var(--sans); color: var(--text); letter-spacing: -.01em; }
+.sent p { margin: 0; color: var(--muted); max-width: 42ch; }
+.sent b { color: var(--text); font-weight: 500; word-break: break-all; }
+.sent-icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; font-size: 24px; color: var(--ink, #06110c);
+  background: var(--aurora); box-shadow: 0 0 0 6px #7dffb51f, 0 0 40px #7dffb566; }
+.sent .btn { margin-top: 8px; }
 .hp { position: absolute; left: -9999px; }
 @media (max-width: 860px) { .contact { grid-template-columns: 1fr; } }
 .foot { max-width: var(--max); margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 12px;

@@ -135,6 +135,12 @@
       <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
       <button class="btn primary" type="submit">Send message</button>
       <p id="form-status" class="muted small" role="status"></p>
+      <div id="form-sent" class="sent" hidden tabindex="-1">
+        <span class="sent-icon" aria-hidden="true">✓</span>
+        <h3>Message sent</h3>
+        <p>Thanks, <b id="sent-name"></b>. Your message reached my inbox. I'll reply to <b id="sent-email"></b>, usually within a day or two.</p>
+        <button type="button" class="btn" id="send-another">Send another message</button>
+      </div>
     </form>
   </section>
 </main>
