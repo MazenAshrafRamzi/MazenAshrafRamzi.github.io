@@ -209,7 +209,7 @@ h2 em { letter-spacing: -.01em; color: #d9f5e6; }
 .sent[hidden] { display: none; }
 .sent h3 { margin: 0; font: 600 26px var(--sans); color: var(--text); letter-spacing: -.01em; }
 .sent p { margin: 0; color: var(--muted); max-width: 42ch; }
-.sent b { color: var(--text); font-weight: 500; word-break: break-all; }
+.sent b { color: var(--text); font-weight: 500; overflow-wrap: anywhere; }
 .sent-icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; font-size: 24px; color: var(--ink, #06110c);
   background: var(--aurora); box-shadow: 0 0 0 6px #7dffb51f, 0 0 40px #7dffb566; }
 .sent .btn { margin-top: 8px; }
