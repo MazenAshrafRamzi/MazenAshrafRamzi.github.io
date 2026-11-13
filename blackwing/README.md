@@ -45,3 +45,8 @@ Only the two hero ravens are still real-time 3D. Everything else is 2D, which is
 - **The ravens** are rendered on their own in profile from the rigged raven, whole body (a scanned twig under the toes was cut away). They sit in front of him, so nothing covers them, and land on his shoulder tops (`ravenL.webp`, `ravenR.webp`).
 - **The well's water** is calmer: smaller, quicker-fading ripples and fewer drips, so the eye stays readable while you play with the surface.
 - Sources are in `D:\Crow\`: `tripo_odin_clean.blend`, `todin_*.png` and `perch_*.png`.
+
+## v8: Odin blends into the dusk; live ravens on his shoulders; his eye opens
+- **No background:** Odin is the transparent render, faded out at the bottom and sides, so he stands straight on the page's own dark (`odin.webp`, 30 KB, with alpha).
+- **The ravens on his shoulders are live 3D**, the same rigged ravens as at dawn, with the same idle life: snapping head turns, tilts, blinking gold eyes, breathing, tail flicks and feather ruffles. `raven3d.js` now has two stages that share ONE WebGL canvas: the hero, and the dusk, where an orthographic camera is mapped onto Odin's square figure. The canvas moves to whichever stage is on screen and renders only there. When the 2D flight lands, `blackwing3d.duskLand(i)` drops that raven onto its shoulder point (`data-at`) with a settling shake of its feathers. The twig the scan grips is cut from the dusk ravens' geometry. Without WebGL, the 2D perched ravens are still used.
+- **His eye** is now a small point of light (1.2% of the frame), not a lit shape. It sits on the model's left eye and opens like an eyelid once both ravens have landed, then breathes, and flares while you write.
