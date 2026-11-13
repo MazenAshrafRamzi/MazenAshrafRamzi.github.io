@@ -350,3 +350,10 @@ html.no-webgl #well { display: block; } html.no-webgl .well-3d { display: none; 
 #well { display: none !important; }
 html.no-well3d .well-3d { display: none !important; } html.no-well3d #well { display: block !important; }
 @media (max-width: 680px) { .well-3d { height: 300px; } }
+
+/* ---------- v7: hand-drawn Odin the Wanderer; ravens stand whole on his shoulders ---------- */
+.odin img.raven-perch { inset: auto; width: 22%; height: auto; z-index: 2; filter: drop-shadow(0 4px 6px #000a); }
+.odin .glint { z-index: 3; }
+
+/* v8: the eye is an almond of gold the exact width of the model's eye (3.6% of the frame) */
+.odin .odin-eye { width: 3.6%; aspect-ratio: 2.4; margin: 0; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(closest-side, #fff4cf, #ffc45e 45%, #e3892a 75%, transparent); box-shadow: 0 0 10px 2px #ffb84d, 0 0 34px 8px #e3a83c88, 0 0 80px 22px #c9a45c33; }

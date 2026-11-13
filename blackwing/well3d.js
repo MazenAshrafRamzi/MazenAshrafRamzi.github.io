@@ -126,10 +126,10 @@ async function build() {
     vertexShader: "varying vec3 vPos; void main(){ vec4 w = modelMatrix * vec4(position,1.); vPos = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }",
     fragmentShader: `uniform sampler2D tScene; uniform vec2 res; uniform float time; uniform vec4 rip[8]; varying vec3 vPos;
       void main(){
-        vec2 p = vPos.xz, g = vec2(cos(p.x*5.+time*1.1)+cos(p.x*9.-p.y*4.+time*.7), cos(p.y*6.-time*.9)+cos(p.y*11.+p.x*3.+time*1.3))*.0035;
+        vec2 p = vPos.xz, g = vec2(cos(p.x*5.+time*1.1)+cos(p.x*9.-p.y*4.+time*.7), cos(p.y*6.-time*.9)+cos(p.y*11.+p.x*3.+time*1.3))*.0013;
         for (int i = 0; i < 8; i++) { vec4 r = rip[i]; if (r.w <= 0.) continue; vec2 d = p - r.xy; float dist = length(d) + 1e-4, age = r.z;
-          float k = exp(-pow((dist - age*.6)*6., 2.)) * exp(-age*1.15) * r.w; g += d/dist * cos(dist*36. - age*12.) * k * .05; }
-        vec3 col = texture2D(tScene, gl_FragCoord.xy/res + g*1.1).rgb;
+          float k = exp(-pow((dist - age*.6)*6., 2.)) * exp(-age*1.7) * r.w; g += d/dist * cos(dist*30. - age*10.) * k * .018; }
+        vec3 col = texture2D(tScene, gl_FragCoord.xy/res + g*.9).rgb;
         vec3 n = normalize(vec3(-g.x*9., 1., -g.y*9.)), V = normalize(cameraPosition - vPos);
         float fres = pow(1. - max(dot(n, V), 0.), 3.);
         col = mix(col * vec3(.8, .88, 1.), vec3(.05, .06, .11), fres * .55);
@@ -152,8 +152,8 @@ async function build() {
   let lastRip = 0, pointerAt = 0;
   const hit = e => { const r = canvas.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); ray.setFromCamera(ndc, cam); return ray.intersectObject(water)[0]; };
   canvas.addEventListener("pointermove", e => { const h = hit(e); if (!h) return; pointerAt = performance.now(); lookTo.set(h.point.x, h.point.z);
-    if (pointerAt - lastRip > 130) { lastRip = pointerAt; ripple(h.point.x, h.point.z, .8); } });
-  canvas.addEventListener("pointerdown", e => { const h = hit(e); if (h) ripple(h.point.x, h.point.z, 1.4); });
+    if (pointerAt - lastRip > 240) { lastRip = pointerAt; ripple(h.point.x, h.point.z, .45); } });
+  canvas.addEventListener("pointerdown", e => { const h = hit(e); if (h) ripple(h.point.x, h.point.z, .9); });
 
   let visible = false;
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { rootMargin: "60px 0px" }).observe(host);
@@ -180,7 +180,7 @@ async function build() {
     for (let i = 0; i < motePos.count; i++) { let y = motePos.getY(i) + dt * .12; if (y > 1.3) y = 0; motePos.setY(i, y); }
     for (let i = 0; i < deepPos.count; i++) { let y = deepPos.getY(i) + dt * .05; if (y > -.05) y = -.55; deepPos.setY(i, y); }
     motePos.needsUpdate = deepPos.needsUpdate = true;
-    if (t > nextDrip && !reduce) { const a = rnd(0, 6.28), k = Math.sqrt(Math.random()) * .7; ripple(Math.cos(a) * k, Math.sin(a) * k, .7); nextDrip = t + rnd(2.2, 4.5); }
+    if (t > nextDrip && !reduce) { const a = rnd(0, 6.28), k = Math.sqrt(Math.random()) * .7; ripple(Math.cos(a) * k, Math.sin(a) * k, .7); nextDrip = t + rnd(4, 8); }
     water.material.uniforms.time.value = t;
     for (const r of ripples) if (r.w > 0) { r.z += dt; if (r.z > 4) r.w = 0; }
     renderer.setRenderTarget(rt); renderer.render(deep, cam); renderer.setRenderTarget(null); renderer.render(scene, cam);
