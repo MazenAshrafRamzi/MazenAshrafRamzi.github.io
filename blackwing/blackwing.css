@@ -1,22 +1,24 @@
-/* BLACKWING: raven / Norse-myth theme with a galactic, dreamlike sky.
-   Palette: raven black and obsidian, bone-white text, Odin's tarnished gold for eyes and runes,
-   and the blue-violet / green-teal sheen real raven feathers show in the light. */
+/* BLACKWING: the portfolio told as one day in Odin's hall.
+   Dawn at Hliðskjálf → Midgard (deeds) → Mímir's Well (memory) → Nidavellir (forge) → dusk, the ravens return.
+   Palette: raven black, bone-white text, Odin's tarnished gold, and the blue-violet / teal sheen of real raven feathers.
+   Performance rules: no backdrop-filter, no animated CSS filters, no full-screen canvases repainting the sky;
+   everything that moves uses transform/opacity or a small, view-gated canvas. */
 :root {
   --void: #050507; --night: #0a0910; --obsidian: #111019; --ash: #1a1824; --line: #2a2634; --line2: #3a3546;
   --bone: #ebe5d8; --mist: #a29bad; --dim: #6c6678;
-  --gold: #c9a45c; --gold-hi: #f0d595; --gold-lo: #7d6331;
-  --sheen: #5b6fb8; --sheen2: #3f8a86; --nebula: #5c3f8f; --blood: #8e2f2f;
-  --r: 14px; --max: 1220px;
+  --gold: #c9a45c; --gold-hi: #f0d595; --gold-lo: #7d6331; --ember: #ff7a2e;
+  --sheen: #5b6fb8; --sheen2: #3f8a86; --nebula: #5c3f8f;
+  --r: 12px; --max: 1220px;
   --display: "Cinzel", "Trajan Pro", Georgia, serif;
   --serif: "Cormorant Garamond", Georgia, serif;
   --sans: "Inter", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, monospace;
+  --rune: "Noto Sans Runic", "Segoe UI Historic", serif;
   --ease: cubic-bezier(.2, .8, .2, 1);
 }
 * { box-sizing: border-box; }
-html { background: var(--void); overflow-x: clip; } /* the raven and its orbiting twins are wider than a phone on purpose */
-body { margin: 0; color: var(--bone); font: 16px/1.65 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden;
-  background: radial-gradient(1100px 700px at 70% -10%, #2b1f4a55, transparent 60%), radial-gradient(900px 700px at 0% 60%, #12304033, transparent 60%), var(--void); }
+html { background: var(--void); overflow-x: clip; }
+body { margin: 0; color: var(--bone); font: 16px/1.65 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; background: var(--void); }
 html.intro-on body { overflow: hidden; }
 a { color: inherit; }
 img, video, svg { display: block; max-width: 100%; }
@@ -28,23 +30,25 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .skip { position: absolute; left: -999px; top: 8px; z-index: 100; background: var(--gold); color: var(--void); padding: 8px 14px; border-radius: 8px; }
 .skip:focus { left: 8px; }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.runic { font-family: var(--rune); letter-spacing: .04em; }
 
-/* sky & feathers (canvases behind everything) */
-#sky, #feathers { position: fixed; inset: 0; width: 100%; height: 100lvh; pointer-events: none; }
-#sky { z-index: -2; }
-#feathers { z-index: 1; }            /* behind the content so text stays readable, in front of the galaxy */
+/* ---------- sky: painted once into an image, then only moved (GPU transform) ---------- */
+#sky { position: fixed; left: 0; top: 0; width: 100%; height: 160lvh; z-index: -2; pointer-events: none; background: var(--void) center top / cover no-repeat; will-change: transform; }
+#sky .tw { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #eef0ff; box-shadow: 0 0 6px #cfd6ff; opacity: .2; animation: tw 3.5s ease-in-out infinite; }
+#sky .tw.g { background: var(--gold-hi); box-shadow: 0 0 6px var(--gold); }
+@keyframes tw { 50% { opacity: .95; } }
+#sky .shoot { position: absolute; width: 160px; height: 1px; background: linear-gradient(90deg, #fff4d6, transparent); opacity: 0; transform-origin: 0 50%; }
+#feathers { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 main, .foot { position: relative; z-index: 2; }
 
-/* ---------- intro: the eye opens ---------- */
+/* ---------- intro: the All-Father's eye opens ---------- */
 #intro { position: fixed; inset: 0; z-index: 90; display: grid; place-content: center; justify-items: center; gap: 22px; background: var(--void); }
 #intro .eye { width: min(340px, 70vw); filter: drop-shadow(0 0 30px #c9a45c55); }
-#intro .lid-top { transform-origin: 0 -60px; }
-#intro .lid-bot { transform-origin: 0 60px; }
-.intro-line { margin: 0; font: italic 500 clamp(18px, 2.4vw, 24px) var(--serif); color: var(--mist); letter-spacing: .04em; }
-.intro-line span { display: inline-block; opacity: 0; }
+.intro-line { margin: 0; font: italic 500 clamp(18px, 2.4vw, 24px) var(--serif); color: var(--mist); letter-spacing: .04em; text-align: center; }
+.intro-line span { display: inline-block; opacity: 0; margin: 0 .25em; }
 html:not(.intro-on) #intro { display: none; }
 
-/* ---------- cursor (fine pointers only) ---------- */
+/* ---------- cursor ---------- */
 .cursor { position: fixed; left: 0; top: 0; z-index: 95; width: 34px; height: 34px; margin: -17px 0 0 -17px; border: 1px solid #c9a45c88; border-radius: 50%;
   pointer-events: none; opacity: 0; transition: width .25s var(--ease), height .25s var(--ease), margin .25s var(--ease), border-color .25s, opacity .3s; }
 .cursor i { position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px; border-radius: 50%; background: var(--gold-hi); box-shadow: 0 0 10px var(--gold); }
@@ -53,65 +57,85 @@ html:not(.intro-on) #intro { display: none; }
 
 /* ---------- nav ---------- */
 .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 40; display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  padding: 16px max(18px, calc((100vw - var(--max)) / 2)); transition: transform .5s var(--ease), background .4s; }
-.nav.solid { background: linear-gradient(#050507ee, #05050700); }
+  padding: 16px max(18px, calc((100vw - var(--max)) / 2)); transition: transform .5s var(--ease); }
+.nav::before { content: ""; position: absolute; inset: 0 0 -30px; background: linear-gradient(#050507f2, #05050700); opacity: 0; transition: opacity .4s; z-index: -1; }
+.nav.solid::before { opacity: 1; }
 .nav.hide { transform: translateY(-110%); }
 .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 700 17px var(--display); letter-spacing: .22em; text-transform: uppercase; }
 .brand svg { width: 38px; fill: #16141f; stroke: var(--gold); stroke-width: 1.6; }
 .brand svg circle { fill: var(--gold-hi); stroke: none; }
-.nav nav { display: flex; gap: 6px; font-size: 14px; }
-.nav nav a { text-decoration: none; color: var(--mist); padding: 8px 12px; border-radius: 99px; transition: color .25s, background .25s; }
-.nav nav a b { font: 700 11px var(--display); color: var(--gold); margin-right: 4px; letter-spacing: .08em; }
-.nav nav a:hover { color: var(--bone); background: #ffffff0a; }
-.nav nav a.cta-link { color: var(--bone); border: 1px solid #c9a45c66; }
-@media (max-width: 760px) { .nav nav a:not(.cta-link) { display: none; } .brand span { display: none; } }
+.top-links { display: flex; gap: 6px; font-size: 14px; }
+.top-links a { text-decoration: none; color: var(--mist); padding: 8px 12px; border-radius: 99px; transition: color .25s, background .25s; }
+.top-links a:hover { color: var(--bone); background: #ffffff0a; }
+.top-links a.cta-link { color: var(--bone); border: 1px solid #c9a45c66; }
+@media (min-width: 1180px) { .top-links a:not(.cta-link) { display: none; } }   /* the tree takes over */
+@media (max-width: 760px) { .top-links a:not(.cta-link) { display: none; } .brand span { display: none; } }
+
+/* ---------- Yggdrasil: the world-tree navigation ---------- */
+.tree { position: fixed; left: max(14px, calc((100vw - var(--max)) / 2 - 92px)); top: 50%; z-index: 35; transform: translateY(-50%); width: 60px; display: none; }
+@media (min-width: 1180px) { .tree { display: block; } }
+.tree svg { width: 60px; overflow: visible; }
+.tree svg path { fill: none; stroke: #c9a45c55; stroke-width: 1.2; stroke-linecap: round; }
+.tree .trunk { position: absolute; left: 29px; top: 64px; bottom: 44px; width: 2px; background: #2a2634; border-radius: 2px; overflow: hidden; }
+.tree .sap { position: absolute; inset: 0; background: linear-gradient(var(--gold-hi), var(--gold) 70%, var(--gold-lo)); box-shadow: 0 0 10px var(--gold); transform-origin: 50% 0; transform: scaleY(var(--sap, 0)); }
+.tree ol { list-style: none; margin: 0; padding: 18px 0; display: grid; gap: 34px; position: relative; }
+.tree a { position: relative; display: grid; place-items: center; width: 36px; height: 36px; margin-left: 12px; border-radius: 50%; text-decoration: none;
+  background: var(--void); border: 1px solid #c9a45c55; color: #c9a45caa; transition: border-color .3s, color .3s, box-shadow .3s, transform .4s var(--ease); }
+.tree a b { font: 400 17px var(--rune); line-height: 1; }
+.tree a span { position: absolute; left: 46px; white-space: nowrap; font: 600 12px var(--display); letter-spacing: .12em; text-transform: uppercase; color: var(--bone);
+  opacity: 0; transform: translateX(-6px); transition: opacity .3s, transform .3s var(--ease); pointer-events: none; }
+.tree a span small { display: block; font: 400 10px var(--mono); letter-spacing: .14em; color: var(--gold); }
+.tree a:hover span, .tree a:focus-visible span { opacity: 1; transform: none; }
+.tree a.on { border-color: var(--gold); color: var(--gold-hi); box-shadow: 0 0 18px -2px #c9a45c99, inset 0 0 10px #c9a45c33; transform: scale(1.12); }
+.tree a:hover { border-color: var(--gold); color: var(--gold-hi); }
 
 /* ---------- buttons ---------- */
-.btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 99px; border: 1px solid var(--line2); background: #ffffff08;
-  text-decoration: none; font-weight: 600; font-size: 15px; letter-spacing: .01em; transition: border-color .25s, background .25s, box-shadow .3s, transform .25s var(--ease); }
-.btn:hover { border-color: var(--gold); box-shadow: 0 0 26px -8px #c9a45caa; }
-.btn.gold { background: linear-gradient(180deg, #e6c47a, #b88d3f); border-color: #f0d59588; color: #1a1206; box-shadow: 0 8px 30px -10px #c9a45ccc, inset 0 1px 0 #fff5d6aa; }
-.btn.gold:hover { background: linear-gradient(180deg, #f0d595, #c9a45c); box-shadow: 0 10px 40px -8px #c9a45c, inset 0 1px 0 #fff5d6; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 4px; border: 1px solid var(--line2); background: #ffffff08;
+  text-decoration: none; font: 600 13px var(--display); letter-spacing: .14em; text-transform: uppercase; transition: border-color .25s, background .25s, box-shadow .3s, transform .25s var(--ease);
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0 50%); padding-inline: 26px; }
+.btn:hover { border-color: var(--gold); background: #c9a45c14; }
+.btn.gold { background: linear-gradient(180deg, #e6c47a, #b88d3f); border-color: transparent; color: #1a1206; }
+.btn.gold:hover { background: linear-gradient(180deg, #f0d595, #c9a45c); }
 .btn:disabled { opacity: .6; cursor: progress; }
 
-/* ---------- hero ---------- */
+/* ---------- hero: dawn at Hliðskjálf ---------- */
 main { padding: 0 18px; }
-.hero { position: relative; min-height: 100svh; max-width: var(--max); margin: 0 auto; display: grid; grid-template-rows: 1fr auto auto; padding: 90px 0 24px; }
+.hero { position: relative; min-height: 100svh; max-width: var(--max); margin: 0 auto; display: grid; grid-template-rows: 1fr auto; padding: 90px 0 30px; }
 .stage { position: absolute; inset: 0 -18px; display: grid; place-items: center; pointer-events: none; overflow: clip; }
-#raven { position: relative; width: min(1050px, 125vw, 112vh); margin-top: -20vh; overflow: visible; } /* no CSS filter: it would re-rasterize the whole bird every flap */
 .runes { position: absolute; width: min(720px, 110vw, 78vh); margin-top: -20vh; opacity: .55; }
 .runes circle { fill: none; stroke: #c9a45c33; stroke-width: 1; }
 .runes .ring-b { stroke-dasharray: 2 10; stroke: #c9a45c55; }
-.runes text { fill: #c9a45c88; font-size: 17px; letter-spacing: 6px; }
-.twins { position: absolute; width: min(1300px, 160vw); overflow: visible; }
-.mini path { fill: #0d0c14; stroke: #8b93d455; stroke-width: 1; }
-.mini .meye { fill: var(--gold-hi); stroke: none; }
-
+.runes text { fill: #c9a45c88; font: 17px var(--rune); letter-spacing: 6px; }
+.flock { position: absolute; width: min(1300px, 160vw); overflow: visible; }
+.birds { position: relative; width: min(1180px, 138vw); height: min(84vh, 800px); margin-top: -17vh; }
+#raven3d { width: 100%; height: 100%; display: block; }
+#raven3d.on-hero { -webkit-mask-image: linear-gradient(#000 62%, transparent 96%); mask-image: linear-gradient(#000 62%, transparent 96%); }
+.mini path { fill: #07070c; stroke: #8f9ae04d; stroke-width: 1.1; stroke-linejoin: round; }
 .hero-copy { position: relative; align-self: end; display: grid; justify-items: center; text-align: center; gap: 14px; padding-top: 38vh; }
 .eyebrow { margin: 0; font-size: 12px; color: var(--mist); letter-spacing: .14em; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
 .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold-hi); box-shadow: 0 0 12px var(--gold); }
 .title { margin: 0; font: 900 clamp(34px, 10.6vw, 176px)/.9 var(--display); letter-spacing: .06em; text-transform: uppercase; color: var(--bone); white-space: nowrap;
-  filter: drop-shadow(0 6px 30px #00000099) drop-shadow(0 0 40px #5c3f8f55); }
-/* the gradient lives on each letter: background-clip:text on the parent can't reach transformed children */
-.title .ch { display: inline-block; background: linear-gradient(180deg, #fbf6ea 10%, #c9c2d6 55%, #6f6a85 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  text-shadow: 0 6px 30px #000c, 0 0 40px #5c3f8f55; }
+.title .ch { display: inline-block; min-width: .5em; text-align: center; }
+.title .ch.r { font-family: var(--rune); font-weight: 400; color: var(--gold-hi); text-shadow: 0 0 24px #c9a45c; }
 .tagline { margin: 0; font: italic 500 clamp(20px, 2.6vw, 30px)/1.3 var(--serif); color: #d8d1c2; }
 .tagline em { color: var(--gold-hi); }
-.cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 8px; pointer-events: auto; }
-.omens { list-style: none; margin: 46px 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 28px; font-size: 12px; color: var(--mist); letter-spacing: .06em; }
+.cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 8px; }
+.omens { list-style: none; margin: 40px 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 28px; font-size: 12px; color: var(--mist); letter-spacing: .06em; }
 .omens b { color: var(--gold-hi); font-weight: 500; margin-right: 6px; }
-.scroll-cue { justify-self: center; margin-top: 26px; display: grid; justify-items: center; gap: 8px; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--dim); text-decoration: none; }
-.scroll-cue i { width: 1px; height: 46px; background: linear-gradient(var(--gold), transparent); }
+
+/* rune decode: letters arrive as Elder Futhark and resolve into English */
+[data-runes] .rn { font-family: var(--rune); color: var(--gold-hi); text-shadow: 0 0 14px #c9a45c99; }
 
 /* ---------- the two ravens ---------- */
 .ravens { max-width: 980px; margin: 0 auto; padding: 120px 0 40px; text-align: center; }
-.lore { font: italic 500 clamp(22px, 3.2vw, 36px)/1.35 var(--serif); color: #d8d1c2; max-width: 760px; margin: 0 auto 56px; }
+.ravens > .kicker-line { margin-bottom: 18px; }
+.lore { font: italic 500 clamp(22px, 3.2vw, 34px)/1.4 var(--serif); color: #d8d1c2; max-width: 780px; margin: 0 auto 56px; }
 .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
 .omen-card { position: relative; display: grid; gap: 8px; padding: 30px; border-radius: var(--r); text-decoration: none; overflow: hidden;
-  background: linear-gradient(160deg, #1a1726cc, #0c0b12cc); border: 1px solid var(--line); transition: border-color .4s, transform .5s var(--ease); }
-.omen-card::before { content: ""; position: absolute; inset: auto -30% -60% auto; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(#5c3f8f55, transparent 65%); transition: transform .6s var(--ease); }
+  background: linear-gradient(160deg, #1a1726, #0c0b12); border: 1px solid var(--line); transition: border-color .4s, transform .5s var(--ease); }
 .omen-card:hover { border-color: #c9a45c88; transform: translateY(-4px); }
-.omen-card:hover::before { transform: scale(1.4); }
-.omen-card .rune { font-size: 40px; color: var(--gold); line-height: 1; text-shadow: 0 0 20px #c9a45c88; }
+.omen-card .rune { font: 40px var(--rune); color: var(--gold); line-height: 1; text-shadow: 0 0 20px #c9a45c88; }
 .omen-card h2 { margin: 0; font: 700 30px var(--display); letter-spacing: .06em; }
 .omen-card h2 em { font: italic 500 22px var(--serif); color: var(--mist); letter-spacing: 0; margin-left: 6px; }
 .omen-card p { margin: 0; color: var(--mist); }
@@ -119,90 +143,113 @@ main { padding: 0 18px; }
 @media (max-width: 700px) { .pair { grid-template-columns: 1fr; } }
 
 /* ---------- section heads ---------- */
-.section { max-width: var(--max); margin: 0 auto; padding: 120px 0 40px; scroll-margin-top: 40px; }
+.section { position: relative; max-width: var(--max); margin: 0 auto; padding: 130px 0 40px; scroll-margin-top: 30px; }
 .sec-head { display: grid; grid-template-columns: auto 1fr auto; align-items: end; gap: 22px; margin-bottom: 40px; }
 .numeral { margin: 0; font: 900 clamp(56px, 8vw, 110px)/.8 var(--display); color: transparent; -webkit-text-stroke: 1px #c9a45c88; }
 .kicker-line { margin: 0 0 6px; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
-h2 { margin: 0; font: 700 clamp(34px, 5vw, 64px)/1 var(--display); letter-spacing: .04em; }
+h2 { margin: 0; font: 700 clamp(34px, 5vw, 64px)/1.02 var(--display); letter-spacing: .04em; }
 .filters { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { border: 1px solid var(--line2); background: transparent; padding: 7px 14px; border-radius: 99px; font-size: 13px; color: var(--mist); transition: .25s; }
+.chip { border: 1px solid var(--line2); background: transparent; padding: 7px 14px; border-radius: 3px; font: 500 12px var(--mono); letter-spacing: .06em; color: var(--mist); transition: .25s; }
 .chip:hover { color: var(--bone); border-color: #c9a45c88; }
 .chip.on { background: var(--gold); border-color: var(--gold); color: #1a1206; }
 @media (max-width: 860px) { .sec-head { grid-template-columns: auto 1fr; } .filters { grid-column: 1 / -1; } }
 
-/* ---------- project cards: obsidian tablets with a feather-sheen edge ---------- */
+/* ---------- I. Midgard: deeds carved as runestones ---------- */
 .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 22px; }
-.card { grid-column: span 2; position: relative; display: flex; flex-direction: column; border-radius: var(--r); overflow: hidden;
-  background: linear-gradient(170deg, #17151f, #0d0c13 60%); border: 1px solid var(--line); transform-style: preserve-3d;
-  transition: border-color .4s, box-shadow .5s; will-change: transform; }
+.card { grid-column: span 2; position: relative; display: flex; flex-direction: column; border-radius: 6px 6px 22px 22px; overflow: hidden;
+  background: linear-gradient(170deg, #1a1822, #0d0c12 60%); border: 1px solid var(--line); transition: border-color .4s, box-shadow .5s, transform .5s var(--ease); }
+.card::before { content: ""; position: absolute; inset: 6px; border: 1px solid #c9a45c1f; border-radius: 3px 3px 18px 18px; pointer-events: none; z-index: 3; } /* the carved inner groove */
 .card.wide { grid-column: span 3; }
-.card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .5s;
-  background: radial-gradient(500px circle at var(--mx, 50%) var(--my, 0%), #5b6fb833, #3f8a8618 35%, transparent 60%); }
-.card:hover { border-color: #5b6fb888; box-shadow: 0 20px 60px -20px #000, 0 0 0 1px #5b6fb833, 0 0 50px -20px #5c3f8f; }
-.card:hover::after { opacity: 1; }
+.card:hover { border-color: #c9a45c77; box-shadow: 0 24px 60px -24px #000, 0 0 40px -18px #c9a45c88; transform: translateY(-4px); }
 .card.hide { display: none; }
 @media (max-width: 1000px) { .card, .card.wide { grid-column: span 3; } }
 @media (max-width: 680px) { .card, .card.wide { grid-column: span 6; } }
 .media { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: #000; cursor: pointer; }
-.media img, .media video { width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--ease), opacity .4s, filter .6s; filter: saturate(.85) brightness(.9); }
-.card:hover .media img:not(.blur) { transform: scale(1.05); filter: saturate(1) brightness(1); }
+.media img, .media video { width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--ease), opacity .4s; }
+.card:hover .media img:not(.blur) { transform: scale(1.05); }
 .media.portrait img.fg, .media.portrait video { object-fit: contain; position: relative; }
-.media .blur { position: absolute; inset: 0; object-fit: cover; filter: brightness(.45) saturate(.7) !important; }
+.media .blur { position: absolute; inset: 0; object-fit: cover; opacity: .45; }
 .media video.preview { position: absolute; inset: 0; opacity: 0; }
 .card.playing video.preview { opacity: 1; }
-.media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, #0d0c13ee); pointer-events: none; }
+.media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, #0005, transparent 30%, transparent 55%, #0d0c12); pointer-events: none; }
 .poster { width: 100%; height: 100%; display: grid; place-content: center; text-align: center; gap: 8px; padding: 20px; background-size: cover; background-position: center; }
 .poster b { font: 700 24px var(--display); letter-spacing: .04em; }
 .poster small { font: 12px var(--mono); color: var(--mist); }
-.badge { position: absolute; top: 12px; left: 12px; z-index: 2; font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 5px 10px; border-radius: 99px;
-  background: #050507cc; border: 1px solid #ffffff1f; }
-.badge.live { color: var(--gold-hi); border-color: #c9a45c88; box-shadow: 0 0 18px -4px #c9a45c; }
-.body { padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.badge { position: absolute; top: 14px; left: 14px; z-index: 4; font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 5px 10px; border-radius: 3px; background: #050507cc; border: 1px solid #ffffff1f; }
+.badge.live { color: var(--gold-hi); border-color: #c9a45c88; }
+.body { position: relative; padding: 18px 24px 26px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.runeband { display: block; overflow: hidden; white-space: nowrap; text-overflow: clip; font: 13px var(--rune); letter-spacing: .32em; color: #c9a45c55; border-bottom: 1px solid #c9a45c22; padding-bottom: 8px; transition: color .5s, text-shadow .5s; }
+.card:hover .runeband { color: var(--gold-hi); text-shadow: 0 0 12px #c9a45c; }
 .kicker { font: 500 11px var(--mono); color: var(--tint, var(--gold)); text-transform: uppercase; letter-spacing: .12em; display: flex; align-items: center; gap: 8px; }
 .kicker::before { content: ""; width: 14px; height: 1px; background: currentColor; }
 .card h3 { margin: 0; font: 700 22px/1.2 var(--display); letter-spacing: .02em; }
 .card p { margin: 0; color: var(--mist); font-size: 15px; }
 .tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-.tools span { font: 11px var(--mono); padding: 3px 8px; border-radius: 6px; background: #ffffff08; border: 1px solid #ffffff10; color: #cfc8d9; }
+.tools span { font: 11px var(--mono); padding: 3px 8px; border-radius: 3px; background: #ffffff08; border: 1px solid #ffffff10; color: #cfc8d9; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 12px; }
-.actions .btn { padding: 9px 16px; font-size: 14px; }
+.actions .btn { padding: 9px 20px; font-size: 11px; }
 
-/* ---------- memory: the flight path ---------- */
+/* ---------- II. Mímir's Well ---------- */
+.well { position: relative; margin: 0 auto 50px; max-width: 900px; text-align: center; }
+#well { width: 100%; height: 280px; display: block; cursor: crosshair; }
+.well figcaption { margin-top: 6px; font: italic 500 20px var(--serif); color: var(--mist); }
+.well figcaption span { display: block; font-size: 11px; font-style: normal; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin-top: 6px; }
 .path { position: relative; display: grid; grid-template-columns: 90px 1fr; }
 .flight { position: absolute; left: 0; top: 0; width: 90px; height: 100%; overflow: visible; }
 .flight path { fill: none; stroke: #c9a45c55; stroke-width: 1.2; stroke-dasharray: 3 7; vector-effect: non-scaling-stroke; }
 .stops { grid-column: 2; list-style: none; margin: 0; padding: 0; }
 .stops li { position: relative; padding: 26px 0 34px; border-bottom: 1px solid var(--line); }
-.stops li::before { content: ""; position: absolute; left: -52px; top: 34px; width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--gold); background: var(--void); box-shadow: 0 0 14px #c9a45c88; }
+.stops li::before { content: "ᛟ"; position: absolute; left: -58px; top: 26px; width: 22px; height: 22px; display: grid; place-items: center; font: 13px var(--rune); color: var(--gold); border: 1px solid var(--gold); border-radius: 50%; background: var(--void); }
 .stops h3 { margin: 0 0 8px; font: 700 22px var(--display); letter-spacing: .02em; }
 .stops p { margin: 0 0 8px; color: var(--mist); max-width: 780px; }
 .when { color: var(--gold) !important; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
 .tags { font-size: 12px; color: #cfc8d9 !important; }
-#pathRaven { position: absolute; left: 0; top: 0; width: 64px; height: 44px; margin: -22px 0 0 -32px; z-index: 2; overflow: visible; }
-@media (max-width: 680px) { .path { grid-template-columns: 44px 1fr; } .flight { width: 44px; } .stops li::before { left: -30px; } }
+#pathRaven { position: absolute; left: 0; top: 0; width: 64px; height: 64px; margin: -32px 0 0 -32px; z-index: 2; overflow: visible; }
+@media (max-width: 680px) { .path { grid-template-columns: 44px 1fr; } .flight { width: 44px; } .stops li::before { left: -36px; } #well { height: 200px; } }
 
-/* ---------- hoard ---------- */
+/* ---------- III. Nidavellir: the forge ---------- */
+.forge::after { content: ""; position: absolute; left: 10%; right: 10%; bottom: -40px; height: 360px; z-index: -1; pointer-events: none;
+  background: radial-gradient(50% 60% at 50% 100%, #ff7a2e2e, #8e2f2f14 50%, transparent 75%); }
+.embers { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: -1; }
+.embers i { position: absolute; bottom: 0; left: calc(var(--x) * 1%); width: 3px; height: 3px; border-radius: 50%; background: #ffb066; box-shadow: 0 0 8px 2px #ff7a2e;
+  opacity: 0; animation: ember var(--d, 6s) linear var(--dl, 0s) infinite; animation-play-state: paused; }
+.forge.live .embers i { animation-play-state: running; }
+@keyframes ember { 0% { transform: translate(0, 0); opacity: 0; } 10% { opacity: .9; } 100% { transform: translate(var(--dx, 20px), -520px); opacity: 0; } }
+.forge-lore { margin: -20px 0 30px; font: italic 500 20px var(--serif); color: var(--mist); }
+.forge-lore span { font-size: 11px; font-style: normal; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin-left: 10px; }
 .hoard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
-.trove { padding: 22px; border-radius: var(--r); border: 1px solid var(--line); background: linear-gradient(180deg, #14121c, #0b0a10); }
+.trove { padding: 22px; border-radius: 6px; border: 1px solid var(--line); background: linear-gradient(180deg, #15121a, #0b0a0f); }
 .trove h3 { margin: 0 0 14px; font-size: 11px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
 .trove ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 7px; }
-.trove li { position: relative; overflow: hidden; font-size: 13.5px; padding: 6px 11px; border-radius: 8px; background: #ffffff07; border: 1px solid #ffffff12; color: #ddd6e6; transition: border-color .3s, color .3s; }
-.trove li::after { content: ""; position: absolute; inset: 0; transform: translateX(-120%) skewX(-20deg); background: linear-gradient(90deg, transparent, #f0d59555, transparent); }
-.trove li:hover { border-color: #c9a45c99; color: #fff; }
-.trove li:hover::after { transition: transform .7s var(--ease); transform: translateX(120%) skewX(-20deg); }
+.trove li { font-size: 13.5px; padding: 6px 11px; border-radius: 3px; background: #ffffff07; border: 1px solid #ffffff12; color: #ddd6e6;
+  transition: border-color .6s, color .6s, background .6s, box-shadow .6s; cursor: default; }
+.trove li:hover, .trove li.hot { border-color: #ff9a4d; color: #fff3e0; background: #ff7a2e1f; box-shadow: 0 0 18px -4px #ff7a2e, inset 0 0 10px #ff7a2e33; transition-duration: .15s; }
 @media (max-width: 1000px) { .hoard { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px) { .hoard { grid-template-columns: 1fr; } }
 
-/* ---------- contact ---------- */
-.contact { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; padding-bottom: 120px; }
-.contact h2 { font-size: clamp(30px, 4vw, 48px); line-height: 1.08; margin: 6px 0 14px; }
-.contact .numeral { margin-bottom: 12px; }
-.links { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 10px; }
-.links a { text-decoration: none; border-bottom: 1px solid var(--line2); transition: border-color .25s, color .25s; }
-.links a:hover { border-color: var(--gold); color: var(--gold-hi); }
-.scroll-form { position: relative; display: grid; gap: 18px; padding: 30px; border-radius: var(--r); border: 1px solid #c9a45c44;
-  background: linear-gradient(180deg, #17141e, #0d0b12); box-shadow: inset 0 0 60px #00000088, 0 30px 80px -40px #000; }
-.scroll-form::before, .scroll-form::after { content: "ᚱ"; position: absolute; top: 12px; font-size: 14px; color: #c9a45c66; }
+/* ---------- IV. Dusk: Odin and the return of the ravens ---------- */
+.dusk { padding-bottom: 110px; }
+.dusk-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; }
+.odin { position: relative; margin: 0; width: 100%; aspect-ratio: 1; max-height: 86vh; }
+.odin svg, .odin-3d { position: absolute; inset: 0; width: 100%; height: 100%; }
+.odin-back .body path { fill: #030305; }
+.odin-back .gungnir { fill: #08080c; }
+.odin-back .gungnir .spear-runes { fill: none; stroke: #c9a45c; stroke-width: 1.3; opacity: .35; transition: opacity 1.4s; }
+.odin.awake .gungnir .spear-runes { opacity: .9; }
+.odin-back .rim path { stroke-width: 1.6; }
+.odin-back .hat path { fill: #040406; }
+.odin-back .beard path { fill: #0e0e15; }
+.odin-back .beard .strands { fill: none; stroke: #8f9ae0; stroke-opacity: .22; stroke-width: 1; }
+.odin-back .valknut path { stroke: var(--gold); stroke-width: 1.6; opacity: .25; transition: opacity 1.6s, filter 1.6s; }
+.odin.awake .valknut path { opacity: .9; }
+.odin-back .face-light { opacity: 0; transition: opacity 1.6s; }
+.odin.awake .face-light { opacity: .45; }
+.odin-eye { opacity: .12; transition: opacity 1.6s; }
+.odin.awake .odin-eye { opacity: 1; }
+#mantle { fill: #030305; }
+.small-lore { font-size: clamp(20px, 2.2vw, 26px); text-align: left; margin: 0 0 26px; }
+.scroll-form { position: relative; display: grid; gap: 18px; padding: 30px; border-radius: 6px; border: 1px solid #c9a45c44; background: linear-gradient(180deg, #17141e, #0d0b12); }
+.scroll-form::before, .scroll-form::after { content: "ᚱ"; position: absolute; top: 12px; font: 14px var(--rune); color: #c9a45c66; }
 .scroll-form::before { left: 14px; } .scroll-form::after { right: 14px; }
 .scroll-form label { display: grid; gap: 6px; font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: .14em; color: var(--mist); }
 .scroll-form input, .scroll-form textarea { font: 16px var(--sans); text-transform: none; letter-spacing: 0; color: var(--bone); background: transparent; border: 0;
@@ -216,34 +263,45 @@ h2 { margin: 0; font: 700 clamp(34px, 5vw, 64px)/1 var(--display); letter-spacin
 .sent h3 { margin: 0; font: 700 26px var(--display); letter-spacing: .03em; }
 .sent p { margin: 0; color: var(--mist); }
 .sent b { color: var(--bone); font-weight: 500; overflow-wrap: anywhere; }
-.seal { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; font-size: 24px; color: #2a1606;
-  background: radial-gradient(circle at 35% 30%, #c0564c, #7e2a24 70%); box-shadow: 0 0 0 4px #8e2f2f33, 0 6px 20px #00000099; }
-#courier { position: fixed; left: 0; top: 0; width: 120px; z-index: 60; pointer-events: none; opacity: 0; overflow: visible; }
-@media (max-width: 820px) { .contact { grid-template-columns: 1fr; gap: 36px; } }
+.seal { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; font: 24px var(--rune); color: #2a1606; background: radial-gradient(circle at 35% 30%, #c0564c, #7e2a24 70%); }
+.links { list-style: none; padding: 0; margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 10px 22px; font-size: 14px; }
+.links a { text-decoration: none; border-bottom: 1px solid var(--line2); transition: border-color .25s, color .25s; }
+.links a:hover { border-color: var(--gold); color: var(--gold-hi); }
+#courier, .flyer { position: fixed; left: 0; top: 0; width: 120px; height: 120px; margin: -60px 0 0 -60px; z-index: 60; pointer-events: none; overflow: visible; }
+#courier { opacity: 0; }
+@media (max-width: 900px) { .dusk-grid { grid-template-columns: 1fr; } .odin { max-width: 560px; margin: 0 auto; } }
 
-.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; max-width: var(--max); margin: 0 auto; padding: 30px 18px 44px;
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; max-width: var(--max); margin: 0 auto; padding: 30px 18px 44px;
   border-top: 1px solid var(--line); font-size: 12px; color: var(--dim); letter-spacing: .06em; }
+.foot .sig b { font: 400 15px var(--rune); color: var(--gold); letter-spacing: .2em; margin-right: 10px; }
 .foot a { text-decoration: none; } .foot a:hover { color: var(--gold); }
 .motto { font: italic 500 15px var(--serif); color: var(--mist); letter-spacing: .02em; }
+.motto small { font: 11px var(--mono); color: var(--dim); margin-left: 6px; letter-spacing: .08em; }
 
 /* ---------- modal ---------- */
-.modal { position: fixed; inset: 0; z-index: 80; background: #050507f2; display: flex; flex-direction: column; }
+.modal { position: fixed; inset: 0; z-index: 80; background: #050507f5; display: flex; flex-direction: column; }
 .modal[hidden] { display: none; }
 .modal-bar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 13px; }
 .spacer { flex: 1; }
-.icon { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line2); background: var(--obsidian); }
+.icon { width: 40px; height: 40px; border-radius: 6px; border: 1px solid var(--line2); background: var(--obsidian); }
 .icon:hover { border-color: var(--gold); }
 .modal-body { flex: 1; min-height: 0; display: grid; place-items: center; padding: 16px; overflow: auto; }
-.modal-body iframe { width: 100%; height: 100%; border: 0; border-radius: 12px; background: #000; }
-.modal-body video { max-height: 100%; max-width: 100%; border-radius: 12px; background: #000; }
+.modal-body iframe { width: 100%; height: 100%; border: 0; border-radius: 8px; background: #000; }
+.modal-body video { max-height: 100%; max-width: 100%; border-radius: 8px; background: #000; }
 .details { max-width: 860px; width: 100%; align-self: start; padding: 10px 0 40px; }
 .details h3 { font: 700 clamp(28px, 4vw, 44px)/1.1 var(--display); margin: 8px 0 14px; letter-spacing: .02em; }
 .details ul { padding-left: 20px; color: #d6cfdf; }
 .details li { margin-bottom: 8px; }
 .details li::marker { color: var(--gold); }
 .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 22px 0; }
-.gallery img { border-radius: 12px; border: 1px solid var(--line); }
+.gallery img { border-radius: 8px; border: 1px solid var(--line); }
 .note { font-size: 13px; color: var(--mist); }
 
-/* reveal start states are set from JS, so nothing is hidden if scripts fail */
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+
+/* the tree owns the left margin on wide screens: content steps aside for it */
+@media (min-width: 1180px) {
+  main, .foot { padding-left: max(18px, calc(170px - (100vw - var(--max)) / 2)); }
+  .tree { left: 18px; }
+}
+@media (max-width: 700px) { .birds { width: 100vw; height: 64vh; margin-top: -24vh; } .runes { margin-top: -24vh; } .hero-copy { padding-top: 34vh; } }
