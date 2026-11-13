@@ -317,3 +317,29 @@ html.no-webgl #well { display: block; } html.no-webgl .well-3d { display: none; 
 @media (max-width: 680px) { .well-3d { height: 240px; } }
 .foot .credits { flex-basis: 100%; margin: 6px 0 0; font-size: 11px; color: var(--dim); letter-spacing: .02em; }
 .foot .credits a { color: var(--mist); }
+
+/* ---------- v5: 2D Odin silhouette, sprite ravens, drawn well eye ---------- */
+.well-3d { display: none !important; }
+#well { display: block !important; height: 300px; }
+.sprite { display: block; width: 120px; height: 120px; background: url(crow-fly.webp) 0 0 / 1200% 100% no-repeat; animation: flap .44s steps(12, jump-none) infinite; pointer-events: none; }
+@keyframes flap { to { background-position: 100% 0; } }
+.flyer { position: fixed; left: 0; top: 0; margin: -60px 0 0 -60px; z-index: 60; }
+.flyer.ambient { z-index: 1; }
+#pathRaven { position: absolute; left: 0; top: 0; width: 90px; height: 90px; margin: -45px 0 0 -45px; z-index: 2; }
+#courier { opacity: 0; }
+.odin { position: relative; aspect-ratio: 1; max-height: 86vh; margin: 0 auto; background: radial-gradient(48% 44% at 50% 40%, #2b204a55, transparent 70%); }
+.odin img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.raven-perch { opacity: 0; transform: translateY(-3%); transition: opacity .45s, transform .55s cubic-bezier(.3, 1.6, .5, 1); }
+.raven-perch.landed { opacity: 1; transform: none; }
+.glint { position: absolute; width: .9%; aspect-ratio: 1; margin: -.45% 0 0 -.45%; border-radius: 50%; background: #fff0c4; opacity: 0;
+  box-shadow: 0 0 6px 2px #ffcf73, 0 0 18px 6px #e3a83c88; transition: opacity .8s; pointer-events: none; }
+.glint.rv.on { opacity: 1; }
+.glint.rv { animation: blink 6s infinite; }
+.odin-eye { width: 1.25%; margin: -.62% 0 0 -.62%; box-shadow: 0 0 8px 3px #ffd27a, 0 0 30px 10px #e3a83caa, 0 0 70px 24px #c9a45c44; transition: opacity 1.8s; }
+.odin.awake .odin-eye { opacity: 1; animation: ember 3.2s ease-in-out infinite; }
+.odin.flare .odin-eye { animation: flare .9s ease-out; }
+@keyframes blink { 0%, 46%, 50%, 100% { transform: scaleY(1); } 48% { transform: scaleY(.1); } }
+@keyframes ember { 50% { box-shadow: 0 0 10px 4px #ffd27a, 0 0 38px 14px #e3a83ccc, 0 0 90px 30px #c9a45c55; } }
+@keyframes flare { 30% { box-shadow: 0 0 14px 6px #fff0c4, 0 0 60px 22px #ffcf73, 0 0 140px 50px #c9a45c88; } }
+.odin-cap { position: absolute; left: 0; right: 0; bottom: 4px; text-align: center; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); opacity: 0; transition: opacity 1.4s; }
+.odin.awake .odin-cap { opacity: 1; color: var(--gold); }

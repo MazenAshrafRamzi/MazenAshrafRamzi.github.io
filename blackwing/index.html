@@ -17,8 +17,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Runic&display=swap" rel="stylesheet">
-<link rel="modulepreload" href="blackwing/raven3d.js?v=11">
-<link rel="stylesheet" href="blackwing/blackwing.css?v=5">
+<link rel="modulepreload" href="blackwing/raven3d.js?v=12">
+<link rel="stylesheet" href="blackwing/blackwing.css?v=7">
 </head>
 <body>
 <a class="skip" href="#thought">Skip to the work</a>
@@ -78,7 +78,6 @@
         <circle r="272" class="ring-a"/><circle r="232" class="ring-b"/>
         <text><textPath href="#runeCircle">ᚠᚢᚦᚨᚱᚲ ᚷᚹ ᚺᚾᛁᛃ ᛇᛈᛉᛊ ᛏᛒᛖᛗ ᛚᛜᛞᛟ · ᚺᚢᚷᛁᚾᚾ · ᛗᚢᚾᛁᚾᚾ · ᚠᚢᚦᚨᚱᚲ ᚷᚹ ᚺᚾᛁᛃ ᛇᛈᛉᛊ ᛏᛒᛖᛗ ᛚᛜᛞᛟ ·</textPath></text>
       </svg>
-      <svg class="flock" viewBox="-500 -300 1000 600"></svg>
       <div class="birds" role="img" aria-label="Huginn and Muninn, two ravens on their perches, their gold eyes following you"></div>
     </div>
     <div class="hero-copy">
@@ -128,7 +127,6 @@
       <div><p class="mono kicker-line" data-runes>Mímir's Well · Muninn's memory</p><h2 data-runes>What the well remembers</h2></div>
     </header>
     <figure class="well">
-      <div class="well-3d" aria-hidden="true"></div>
       <canvas id="well" aria-hidden="true"></canvas>
       <figcaption>Odin gave one eye to drink from this well. It still watches from the water. <span class="mono">touch the surface</span></figcaption>
     </figure>
@@ -170,8 +168,12 @@
       <div><p class="mono kicker-line" data-runes>Hliðskjálf · dusk</p><h2 data-runes>The ravens return</h2></div>
     </header>
     <div class="dusk-grid">
-      <figure class="odin" aria-label="Odin, the All-Father: a cloaked shadow with one burning eye, his spear Gungnir and a ring of runes behind him. His two ravens land on his shoulders.">
-        <div class="odin-3d"></div>
+      <figure class="odin" aria-label="Odin, the All-Father: a dark silhouette with Gungnir and a ring of runes behind him. His two ravens land on his shoulders, and only his one eye lights.">
+        <img class="odin-sil" src="blackwing/odin.webp" alt="" width="900" height="900" loading="lazy" decoding="async">
+        <img class="raven-perch" data-at=".37,.47" src="blackwing/ravenL.webp" alt="" width="900" height="900" loading="lazy" decoding="async">
+        <img class="raven-perch" data-at=".655,.45" src="blackwing/ravenR.webp" alt="" width="900" height="900" loading="lazy" decoding="async">
+        <i class="glint rv" style="left:41.84%;top:43.86%"></i><i class="glint rv" style="left:60.2%;top:41.73%"></i>
+        <i class="glint odin-eye" style="left:52.83%;top:44.99%"></i>
         <figcaption class="odin-cap mono">The All-Father · one eye given to Mímir, one that sees everything</figcaption>
       </figure>
       <div class="contact-copy">
@@ -197,7 +199,7 @@
         </ul>
       </div>
     </div>
-    <svg id="courier" aria-hidden="true" viewBox="-60 -60 120 120"><g class="cbody mini"></g></svg>
+    <i id="courier" class="sprite flyer" aria-hidden="true"></i>
   </section>
 </main>
 
@@ -205,7 +207,7 @@
   <span class="sig"><b>ᛒᛚᚨᚲᚴᚹᛁᛜ</b> © 2026 Mazen Ashraf Refaat</span>
   <span class="motto">“For Hugin I fear lest he come not home, but for Munin my care is more.” <small>Odin, Grímnismál</small></span>
   <a href="blackwing/#top">Return to Hliðskjálf ↑</a>
-  <p class="credits">3D models: <a href="https://sketchfab.com/3d-models/odin-alfor-a0a9e5b682004ee38c86870c5ee0c060" target="_blank" rel="noopener">ODIN Alföðr</a> by Tom Holbein / VDCnordic (CC BY 4.0) · <a href="https://sketchfab.com/3d-models/realistic-human-eye-417cbd1aac554ea189966250b784ab6f" target="_blank" rel="noopener">Realistic Human Eye</a> by Alexander Antipov (CC BY 4.0) · <a href="https://sketchfab.com/3d-models/common-raven-ec9c0ac738fd4495af334ea2092e8d89" target="_blank" rel="noopener">Common raven</a> by Virtual Museums of Małopolska (CC0). Modified for this site.</p>
+  <p class="credits">3D models: <a href="https://sketchfab.com/3d-models/crow-fly-f47a1a1729544846a2bce22cc6adb500" target="_blank" rel="noopener">Crow Fly</a> by LostBoyz2078 (CC BY-NC 4.0, flight frames rendered from it) · <a href="https://sketchfab.com/3d-models/odin-alfor-a0a9e5b682004ee38c86870c5ee0c060" target="_blank" rel="noopener">ODIN Alföðr</a> by Tom Holbein / VDCnordic (CC BY 4.0) · <a href="https://sketchfab.com/3d-models/common-raven-ec9c0ac738fd4495af334ea2092e8d89" target="_blank" rel="noopener">Common raven</a> by Virtual Museums of Małopolska (CC0). Odin is a silhouette rendered from his model. Modified for this site.</p>
 </footer>
 
 <div id="modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -216,12 +218,12 @@
 </div>
 
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }</script>
-<script type="module" async src="blackwing/raven3d.js?v=11"></script>
+<script type="module" async src="blackwing/raven3d.js?v=12"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js" defer></script>
 <script src="config.js?v=bw1" defer></script>
 <script src="blackwing/projects.js?v=1" defer></script>
-<script src="blackwing/blackwing.js?v=6" defer></script>
+<script src="blackwing/blackwing.js?v=10" defer></script>
 </body>
 </html>
