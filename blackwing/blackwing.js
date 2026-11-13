@@ -20,7 +20,6 @@ const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS,
 const rnd = (a, b) => a + Math.random() * (b - a), clamp01 = t => Math.max(0, Math.min(1, t));
 const onView = (target, cb, opts = {}) => { const io = new IntersectionObserver(es => es.forEach(e => cb(e.isIntersecting, e)), opts); io.observe(target); return io; };
 let paused = false;
-setTimeout(() => { if (!window.blackwing3d) document.documentElement.classList.add("no-webgl"); }, 9000); // 3D never arrived: use the 2D fallbacks                       // canvases and 3D pause while a demo or video is open
 window.blackwing = { isPaused: () => paused };
 const three = () => window.blackwing3d || {};
 
@@ -52,24 +51,14 @@ const runeEls = reduce ? [] : $$("[data-runes]");
 runeEls.forEach(runify);
 
 /* =====================================================================================
-   1. RAVEN SILHOUETTES for flight (the perched ravens are real 3D). The near wing morphs between
-   an up-stroke and a down-stroke, and the primaries spread like a raven's "fingers".
+   1. FLYING RAVENS: a 12-frame flight cycle rendered in Blender from the "Crow Fly" model (one 40 KB sprite sheet)
    ===================================================================================== */
-const BODY = "M58 -1L46 -5C42 -11 32 -12 26 -8C14 -8 -6 -7 -22 -3L-56 -8L-60 -2L-56 4L-22 5C-6 8 14 8 26 5C32 6 40 4 46 1Z";
-const WING_UP = "M22 -6C14 -20 6 -30 -4 -36L-14 -46L-26 -56L-24 -50L-36 -58L-32 -50L-44 -56L-38 -47L-50 -50L-42 -42L-52 -42L-40 -36C-26 -26 -12 -14 -4 -5Z";
-const WING_DN = "M22 -5C14 6 6 16 -4 24L-12 34L-22 44L-21 37L-32 44L-29 36L-41 40L-35 32L-46 32L-37 26L-47 24L-35 20C-24 12 -12 4 -4 -3Z";
-function miniRaven(g, beat = rnd(.26, .34)) {
-  const far = el("path", { d: WING_DN, opacity: .5, transform: "translate(6 -1) scale(.9)" }, g);
-  el("path", { d: BODY }, g);
-  const near = el("path", { d: WING_UP }, g);
-  if (motion) [[near, WING_UP, WING_DN, 0], [far, WING_DN, WING_UP, 0]].forEach(([w, a, b]) => G.fromTo(w, { attr: { d: a } }, { attr: { d: b }, duration: beat, ease: "sine.inOut", yoyo: true, repeat: -1 }));
-  return g;
+const SPAN = 75;   // wingspan, in px, of the bird inside one 120 px sprite cell
+function makeFlyer(fixed = true, cls = "") {
+  const d = document.createElement("i"); d.className = "sprite" + (fixed ? " flyer" : "") + (cls ? " " + cls : ""); d.setAttribute("aria-hidden", "true");
+  d.style.animationDelay = -rnd(0, .45).toFixed(2) + "s"; if (fixed) document.body.appendChild(d); return d;
 }
-function makeFlyer() {
-  const s = el("svg", { class: "flyer", viewBox: "-60 -60 120 120", "aria-hidden": "true" }); document.body.appendChild(s);
-  miniRaven(el("g", { class: "mini" }, s), .2); return s;
-}
-const killFlyer = s => { if (G) G.killTweensOf([s, ...s.querySelectorAll("path")]); s.remove(); };
+const killFlyer = f => { if (G) G.killTweensOf(f); f.remove(); };
 
 /* =====================================================================================
    2. SKY: nebula, milky band and stars are painted ONCE into an image; scrolling only moves it.
@@ -175,25 +164,25 @@ function startIdle() {
   G.delayedCall(4, sendFlyer);
 }
 function takeoff() {
-  const heads = three().heroHeads?.() || [], size = $(".birds").clientHeight * .5;
+  const heads = three().heroHeads?.() || [], s = $(".birds").clientHeight * .42 / SPAN;
   G.to(".birds", { opacity: 0, duration: .35, onComplete: () => three().setHeroAway?.(true) });
   heads.forEach(([x, y], i) => {
     const f = makeFlyer(), dirn = i === 0 ? 1 : -1;   // Huginn to the right, Muninn to the left
     burst(x, y, 8, 1);
     G.timeline({ onComplete: () => killFlyer(f) })
-      .set(f, { x, y, scale: size / 110, scaleX: size / 110 * dirn, opacity: 1 })
-      .to(f, { duration: 1.6, ease: "power2.in", motionPath: { path: [{ x: x + dirn * 120, y: y - 140 }, { x: dirn > 0 ? innerWidth + 160 : -160, y: -160 }], curviness: 1.2 }, scale: .25, scaleX: .25 * dirn });
+      .set(f, { x, y, scale: s, scaleX: s * dirn, opacity: 1 })
+      .to(f, { duration: 1.7, ease: "power2.in", motionPath: { path: [{ x: x + dirn * 140, y: y - 120 }, { x: dirn > 0 ? innerWidth + 200 : -200, y: -180 }], curviness: 1.2 }, scale: .3, scaleX: .3 * dirn });
   });
 }
-// now and then a distant raven crosses the dawn sky
-const flockLayer = $(".flock");
+// now and then a raven crosses the dawn sky, behind the content
 function sendFlyer() {
   if (!motion) return;
-  if (!paused && !document.hidden && scrollY < innerHeight) {
-    const g = miniRaven(el("g", { class: "mini" }, flockLayer)), dirn = Math.random() < .5 ? 1 : -1, s = rnd(.22, .45), y0 = rnd(-270, -110);
-    G.fromTo(g, { x: -580 * dirn, y: y0, scaleX: s * dirn, scaleY: s, opacity: .35 + s }, { x: 580 * dirn, y: y0 + rnd(-70, 40), duration: rnd(15, 22) / (s + .6), ease: "none", onComplete() { G.killTweensOf(g.children); g.remove(); } });
+  if (!paused && !document.hidden && scrollY < innerHeight * .8) {
+    const f = makeFlyer(true, "ambient"), dirn = Math.random() < .5 ? 1 : -1, s = rnd(.3, .62), y0 = rnd(innerHeight * .08, innerHeight * .34);
+    G.fromTo(f, { x: dirn > 0 ? -120 : innerWidth + 120, y: y0, scale: s, scaleX: s * dirn, opacity: .5 + s * .5 },
+      { x: dirn > 0 ? innerWidth + 120 : -120, y: y0 + rnd(-60, 30), duration: rnd(9, 13) / (s + .4), ease: "none", onComplete: () => killFlyer(f) });
   }
-  G.delayedCall(rnd(6, 12), sendFlyer);
+  G.delayedCall(rnd(7, 13), sendFlyer);
 }
 if (!motion || seen) { $("#intro").remove(); requestAnimationFrame(heroIn); }
 else {
@@ -327,79 +316,115 @@ document.addEventListener("click", e => {
 });
 
 /* =====================================================================================
-   8. MÍMIR'S WELL: Odin's sacrificed eye at the bottom of the water. Touch the surface and it ripples.
+   8. MÍMIR'S WELL: Odin's eye at the bottom of the water, drawn (not modelled): a gold iris of fibres and runes,
+   bent by every ripple you make. It follows your cursor and blinks.
    ===================================================================================== */
 (() => {
   const cv = $("#well"); if (!cv) return;
-  const g = cv.getContext("2d");
-  let w, h, cx, cy, rx, ry, rim, live = false, lastT = 0, blink = 0, nextBlink = 3, look = [0, 0], lookTo = [0, 0];
+  const g = cv.getContext("2d"), eyeCv = document.createElement("canvas"), e = eyeCv.getContext("2d"), irisCv = document.createElement("canvas");
+  let w, h, cx, cy, rx, ry, er, rim, live = false, lastT = 0, blink = 0, nextBlink = 3, look = [0, 0], lookTo = [0, 0], d = 1;
   const ripples = [];
+  function buildIris() {                     // painted once: radial fibres, a collarette, a ring of runes and the dark limbal ring
+    const R = 160; irisCv.width = irisCv.height = R * 2; const c = irisCv.getContext("2d");
+    const gr = c.createRadialGradient(R, R, R * .18, R, R, R); gr.addColorStop(0, "#fff3c8"); gr.addColorStop(.28, "#f2c45c"); gr.addColorStop(.62, "#b9731d"); gr.addColorStop(.9, "#4f2a0b"); gr.addColorStop(1, "#140a04");
+    c.fillStyle = gr; c.beginPath(); c.arc(R, R, R, 0, 6.283); c.fill();
+    for (let i = 0; i < 640; i++) { const a = Math.random() * 6.283, r0 = R * (.2 + Math.random() * .12), r1 = R * (.55 + Math.random() * .42), b = (Math.random() - .5) * .3;
+      c.strokeStyle = Math.random() < .55 ? `rgba(255,232,170,${(.06 + Math.random() * .2).toFixed(2)})` : `rgba(70,32,8,${(.1 + Math.random() * .25).toFixed(2)})`;
+      c.lineWidth = .5 + Math.random() * 1.3; c.beginPath(); c.moveTo(R + Math.cos(a) * r0, R + Math.sin(a) * r0);
+      c.quadraticCurveTo(R + Math.cos(a + b) * (r0 + r1) / 2, R + Math.sin(a + b) * (r0 + r1) / 2, R + Math.cos(a) * r1, R + Math.sin(a) * r1); c.stroke(); }
+    c.strokeStyle = "rgba(255,214,140,.5)"; c.lineWidth = 2.2; c.beginPath();
+    for (let i = 0; i <= 72; i++) { const a = i / 72 * 6.283, rr = R * (.4 + (i % 2 ? .045 : -.02)); i ? c.lineTo(R + Math.cos(a) * rr, R + Math.sin(a) * rr) : c.moveTo(R + Math.cos(a) * rr, R + Math.sin(a) * rr); }
+    c.stroke();
+    c.fillStyle = "rgba(255,238,196,.32)"; c.font = `${Math.round(R * .1)}px "Noto Sans Runic", serif`; c.textAlign = "center"; c.textBaseline = "middle";
+    for (let i = 0; i < 18; i++) { const a = i / 18 * 6.283; c.save(); c.translate(R + Math.cos(a) * R * .76, R + Math.sin(a) * R * .76); c.rotate(a + Math.PI / 2); c.fillText(RUNES[i % RUNES.length], 0, 0); c.restore(); }
+    c.strokeStyle = "rgba(8,4,2,.9)"; c.lineWidth = R * .09; c.beginPath(); c.arc(R, R, R * .955, 0, 6.283); c.stroke();
+  }
+  buildIris(); document.fonts?.ready.then(buildIris);
   function size() {
-    const d = Math.min(devicePixelRatio || 1, 1.5); w = cv.clientWidth; h = cv.clientHeight; if (!w || !h) return false; cv.width = w * d; cv.height = h * d; g.setTransform(d, 0, 0, d, 0, 0);
-    cx = w / 2; cy = h * .44; rx = Math.min(w * .36, 300); ry = rx * .3;
+    d = Math.min(devicePixelRatio || 1, 1.5); w = cv.clientWidth; h = cv.clientHeight; if (!w || !h) return;
+    cv.width = w * d; cv.height = h * d; g.setTransform(d, 0, 0, d, 0, 0);
+    cx = w / 2; cy = h * .46; rx = Math.min(w * .36, 300); ry = rx * .32; er = rx * .2;
+    eyeCv.width = Math.ceil(er * 4.4 * d); eyeCv.height = Math.ceil(er * 2.4 * d);
     rim = document.createElement("canvas"); rim.width = w * d; rim.height = h * d; const r = rim.getContext("2d"); r.setTransform(d, 0, 0, d, 0, 0);
     const shaft = r.createLinearGradient(0, cy - ry, 0, cy + ry * 2.6); shaft.addColorStop(0, "#0b0a12"); shaft.addColorStop(1, "#050507");
-    r.fillStyle = shaft; r.beginPath(); r.ellipse(cx, cy + ry * .9, rx * 1.18, ry * 2.4, 0, 0, Math.PI); r.fill();          // the well's stone body below the rim
-    for (let k = 0; k < 34; k++) {                                                                                            // ring of fitted stones
+    r.fillStyle = shaft; r.beginPath(); r.ellipse(cx, cy + ry * .9, rx * 1.18, ry * 2.4, 0, 0, Math.PI); r.fill();
+    for (let k = 0; k < 34; k++) {
       const a0 = k / 34 * Math.PI * 2, a1 = (k + 1) / 34 * Math.PI * 2 - .03, o = rnd(1.03, 1.06), i2 = rnd(1.2, 1.27);
       r.beginPath(); r.ellipse(cx, cy, rx * i2, ry * i2, 0, a0, a1); r.ellipse(cx, cy, rx * o, ry * o, 0, a1, a0, true); r.closePath();
-      const front = Math.sin((a0 + a1) / 2) > 0, l = front ? rnd(24, 34) : rnd(15, 22);
-      r.fillStyle = `rgb(${l},${l - 2},${l + 6})`; r.fill(); r.strokeStyle = front ? "#3a3546" : "#25212f"; r.lineWidth = 1; r.stroke();
+      const front = Math.sin((a0 + a1) / 2) > 0, l = front ? rnd(26, 36) : rnd(16, 23);
+      r.fillStyle = `rgb(${l},${l - 2},${l + 4})`; r.fill(); r.strokeStyle = front ? "#3d3846" : "#25212f"; r.lineWidth = 1; r.stroke();
     }
-    for (let k = 0; k < 6; k++) { const a = rnd(0, Math.PI * 2), x = cx + Math.cos(a) * rx * 1.15, y = cy + Math.sin(a) * ry * 1.15;          // carved runes on the rim
-      r.fillStyle = "rgba(201,164,92,.45)"; r.font = `${Math.round(rx * .05)}px "Noto Sans Runic", serif`; r.fillText(RUNES[(Math.random() * RUNES.length) | 0], x, y); }
+    for (let k = 0; k < 7; k++) { const a = rnd(0, Math.PI * 2); r.fillStyle = "rgba(201,164,92,.45)"; r.font = `${Math.round(rx * .05)}px "Noto Sans Runic", serif`;
+      r.fillText(RUNES[(Math.random() * RUNES.length) | 0], cx + Math.cos(a) * rx * 1.15, cy + Math.sin(a) * ry * 1.15); }
+  }
+  // the eye itself, drawn flat into its own small canvas each frame (lids, iris, pupil, highlights)
+  function drawEye(t, open) {
+    const W = eyeCv.width / d, H = eyeCv.height / d, x0 = W / 2, y0 = H / 2;
+    e.setTransform(d, 0, 0, d, 0, 0); e.clearRect(0, 0, W, H);
+    const lid = er * 1.05 * open;
+    e.save(); e.beginPath(); e.moveTo(x0 - er * 2.1, y0); e.bezierCurveTo(x0 - er, y0 - lid * 1.35, x0 + er, y0 - lid * 1.35, x0 + er * 2.1, y0);
+    e.bezierCurveTo(x0 + er, y0 + lid * 1.25, x0 - er, y0 + lid * 1.25, x0 - er * 2.1, y0); e.closePath(); e.clip();
+    const sc = e.createRadialGradient(x0, y0, er * .4, x0, y0, er * 2.2); sc.addColorStop(0, "#5a5146"); sc.addColorStop(1, "#141110");
+    e.fillStyle = sc; e.fillRect(0, 0, W, H);
+    const ix = x0 + look[0] * er * .7, iy = y0 + look[1] * er * .35, pulse = 1 + Math.sin(t * .9) * .06;
+    e.drawImage(irisCv, ix - er, iy - er, er * 2, er * 2);
+    const pr = er * .34 * pulse, pg = e.createRadialGradient(ix, iy, pr * .7, ix, iy, pr * 1.15); pg.addColorStop(0, "#030203"); pg.addColorStop(1, "rgba(3,2,3,0)");
+    e.fillStyle = pg; e.beginPath(); e.arc(ix, iy, pr * 1.15, 0, 6.283); e.fill();
+    e.fillStyle = "rgba(255,250,235,.85)"; e.beginPath(); e.ellipse(ix - er * .32, iy - er * .34, er * .13, er * .09, -.5, 0, 6.283); e.fill();
+    e.fillStyle = "rgba(255,250,235,.35)"; e.beginPath(); e.arc(ix + er * .3, iy + er * .28, er * .05, 0, 6.283); e.fill();
+    const shade = e.createLinearGradient(0, y0 - lid * 1.3, 0, y0 + lid * .2); shade.addColorStop(0, "rgba(0,0,0,.75)"); shade.addColorStop(1, "rgba(0,0,0,0)");
+    e.fillStyle = shade; e.fillRect(0, 0, W, H);
+    e.restore();
   }
   function draw(now) {
-    if (!rim || !w || !h) return;                       // only the no-WebGL fallback shows this canvas
+    if (!rim || !w) return;
     const t = now / 1000, dt = Math.min(.05, t - (lastT || t)); lastT = t;
     g.clearRect(0, 0, w, h);
     g.save(); g.beginPath(); g.ellipse(cx, cy, rx * 1.04, ry * 1.04, 0, 0, Math.PI * 2); g.clip();
-    const water = g.createRadialGradient(cx, cy, 0, cx, cy, rx); water.addColorStop(0, "#14122a"); water.addColorStop(1, "#050508");
+    const water = g.createRadialGradient(cx, cy, 0, cx, cy, rx); water.addColorStop(0, "#15122b"); water.addColorStop(1, "#050508");
     g.fillStyle = water; g.fillRect(cx - rx * 1.1, cy - ry * 1.1, rx * 2.2, ry * 2.2);
-    let dx = 0, dy = 0;                                                     // ripples bend the image of the eye
-    for (const p of ripples) { const d = Math.hypot(cx - p.x, (cy - p.y) / .3), r = p.t * 160, k = Math.exp(-((d - r) ** 2) / 900) * (1 - p.t / 2.4);
-      dx += Math.sin(d * .08 - p.t * 9) * 4 * k; dy += Math.cos(d * .08 - p.t * 9) * 1.6 * k; }
-    look[0] += (lookTo[0] - look[0]) * .08; look[1] += (lookTo[1] - look[1]) * .08;
-    if (t > nextBlink) { blink = 1; nextBlink = t + rnd(3, 8); } blink = Math.max(0, blink - dt / .25);
-    const ex = cx + dx + Math.sin(t * .6) * 2, ey = cy + dy + Math.cos(t * .5), er = rx * .2, open = 1 - Math.sin(blink * Math.PI) * .9;
-    const halo = g.createRadialGradient(ex, ey, 0, ex, ey, er * 4.5); halo.addColorStop(0, "rgba(232,180,80,.38)"); halo.addColorStop(1, "rgba(232,180,80,0)");
-    g.fillStyle = halo; g.fillRect(cx - rx, cy - ry, rx * 2, ry * 2);
-    g.save(); g.translate(ex, ey); g.scale(1, .42 * open);
-    g.beginPath(); g.moveTo(-er * 1.9, 0); g.quadraticCurveTo(0, -er * 1.6, er * 1.9, 0); g.quadraticCurveTo(0, er * 1.6, -er * 1.9, 0); g.clip();
-    g.fillStyle = "#0e0c14"; g.fillRect(-er * 2, -er * 2, er * 4, er * 4);
-    const ix = look[0] * er * .5, iy = look[1] * er * .4;
-    const iris = g.createRadialGradient(ix, iy, 0, ix, iy, er); iris.addColorStop(0, "#fff0c0"); iris.addColorStop(.35, "#e3b55a"); iris.addColorStop(1, "#6b4a14");
-    g.fillStyle = iris; g.beginPath(); g.arc(ix, iy, er, 0, 6.283); g.fill();
-    g.fillStyle = "#050507"; g.beginPath(); g.arc(ix, iy, er * .42, 0, 6.283); g.fill();
-    g.restore();
+    look[0] += (lookTo[0] - look[0]) * .1; look[1] += (lookTo[1] - look[1]) * .1;
+    if (nextBlink < 100) nextBlink = t + 3;               // first frame: schedule the first blink from now
+    if (t > nextBlink) { blink = 1; nextBlink = t + rnd(3.5, 8); } blink = Math.max(0, blink - dt / .3);
+    const halo = g.createRadialGradient(cx, cy, 0, cx, cy, er * 3.4), glow = .3 + Math.sin(t * .9) * .06;
+    halo.addColorStop(0, `rgba(232,180,80,${glow})`); halo.addColorStop(1, "rgba(232,180,80,0)"); g.fillStyle = halo; g.fillRect(cx - rx, cy - ry, rx * 2, ry * 2);
+    drawEye(t, 1 - Math.sin(blink * Math.PI) * .95);
+    // refraction: the eye is copied in thin rows, each pushed sideways by the ripples crossing it, and squashed by the viewing angle
+    const W = eyeCv.width, dw = W / d, dh = eyeCv.height / d, flat = .62, top = cy - dh * flat / 2, step = 3;
+    for (let y = 0; y < dh; y += step) {
+      const py = top + y * flat; let off = Math.sin(y * .09 + t * 1.6) * .8;
+      for (const p of ripples) { const dist = Math.hypot(cx - p.x, (py - p.y) / .32), r = p.t * 150, k = Math.exp(-((dist - r) ** 2) / 700) * (1 - p.t / 2.4) * p.a; off += Math.sin(dist * .09 - p.t * 9) * 7 * k; }
+      g.drawImage(eyeCv, 0, y * d, W, step * d, cx - dw / 2 + off, py, dw, step * flat + .6);
+    }
     for (let i = ripples.length - 1; i >= 0; i--) { const p = ripples[i]; p.t += dt; if (p.t > 2.4) { ripples.splice(i, 1); continue; }
-      for (const k of [0, .35]) { const r = Math.max(1, (p.t - k) * 160); if (r <= 1) continue;
-        g.strokeStyle = `rgba(190,200,255,${(.32 * (1 - p.t / 2.4)).toFixed(3)})`; g.lineWidth = 1.2; g.beginPath(); g.ellipse(p.x, p.y, r, r * .3, 0, 0, 6.283); g.stroke(); } }
-    const sheen = g.createLinearGradient(cx - rx, cy - ry, cx + rx, cy + ry); sheen.addColorStop(0, "rgba(140,150,230,.10)"); sheen.addColorStop(.5, "rgba(0,0,0,0)"); sheen.addColorStop(1, "rgba(63,138,134,.08)");
+      for (const k of [0, .3]) { const r = (p.t - k) * 150; if (r <= 1) continue;
+        g.strokeStyle = `rgba(190,200,255,${(.34 * (1 - p.t / 2.4) * p.a).toFixed(3)})`; g.lineWidth = 1.2; g.beginPath(); g.ellipse(p.x, p.y, r, r * .32, 0, 0, 6.283); g.stroke(); } }
+    const sheen = g.createLinearGradient(cx - rx, cy - ry, cx + rx, cy + ry); sheen.addColorStop(0, "rgba(140,150,230,.12)"); sheen.addColorStop(.5, "rgba(0,0,0,0)"); sheen.addColorStop(1, "rgba(63,138,134,.08)");
     g.fillStyle = sheen; g.fillRect(cx - rx * 1.1, cy - ry * 1.1, rx * 2.2, ry * 2.2);
     g.restore();
     g.drawImage(rim, 0, 0, w, h);
   }
   let raf = 0, lastF = 0;
   const tick = now => { raf = live ? requestAnimationFrame(tick) : 0; if (paused || now - lastF < 33) return; lastF = now; draw(now); };
-  const drip = () => { if (live && !reduce) { const a = rnd(0, 6.28), k = Math.sqrt(Math.random()) * .8; ripples.push({ x: cx + Math.cos(a) * rx * k, y: cy + Math.sin(a) * ry * k, t: 0 }); } setTimeout(drip, rnd(2500, 5000)); };
+  const add = (x, y, a = 1) => ripples.push({ x, y, t: 0, a });
+  const drip = () => { if (live && !reduce && w) { const a = rnd(0, 6.28), k = Math.sqrt(Math.random()) * .8; add(cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k, .7); } setTimeout(drip, rnd(2500, 5000)); };
   size(); addEventListener("resize", () => { size(); if (!live) draw(performance.now()); });
   onView(cv, v => { live = v; if (v && !raf && !reduce) raf = requestAnimationFrame(tick); if (reduce) draw(performance.now()); });
   let lastR = 0;
-  cv.addEventListener("pointermove", e => {
-    const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  cv.addEventListener("pointermove", ev => {
+    const r = cv.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;
     lookTo = [Math.max(-1, Math.min(1, (x - cx) / rx)), Math.max(-1, Math.min(1, (y - cy) / (ry * 2)))];
-    if (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 < 1 && performance.now() - lastR > 140) { lastR = performance.now(); ripples.push({ x, y, t: 0 }); }
+    if (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 < 1 && performance.now() - lastR > 140) { lastR = performance.now(); add(x, y, .8); }
   });
-  cv.addEventListener("pointerdown", e => { const r = cv.getBoundingClientRect(); ripples.push({ x: e.clientX - r.left, y: e.clientY - r.top, t: 0 }); });
+  cv.addEventListener("pointerleave", () => { lookTo = [0, 0]; });
+  cv.addEventListener("pointerdown", ev => { const r = cv.getBoundingClientRect(); add(ev.clientX - r.left, ev.clientY - r.top, 1.3); });
   drip();
 })();
 
 // Muninn glides down the flight path as you read the memory
 (() => {
   const path = $(".path"), line = $("#flightLine"); if (!path || !line) return;
-  const bird = el("svg", { id: "pathRaven", viewBox: "-60 -60 120 120", "aria-hidden": "true" });
-  path.appendChild(bird); miniRaven(el("g", { class: "mini" }, bird));
+  const bird = makeFlyer(false); bird.id = "pathRaven"; path.appendChild(bird);
   const len = line.getTotalLength(), flight = $(".flight");
   let prevX = 50;
   const place = p => { const pt = line.getPointAtLength(len * p), r = flight.getBoundingClientRect();
@@ -421,33 +446,31 @@ document.addEventListener("click", e => {
 })();
 
 /* =====================================================================================
-   10. DUSK: the ravens fly home to the All-Father (3D, raven3d.js) and land on his shoulders; then his eye ignites.
+   10. DUSK: Odin is a silhouette rendered from the 3D statue in Blender. The ravens fly home and land on his shoulders;
+   then only his left eye lights, like theirs.
    ===================================================================================== */
 (() => {
   const odin = $(".odin"); if (!odin) return;
-  $("#contact-form").addEventListener("input", () => three().flareOdin?.());   // he listens while you write
+  $("#contact-form").addEventListener("input", () => { odin.classList.remove("flare"); void odin.offsetWidth; odin.classList.add("flare"); });  // he listens while you write
   let done = false;
   const io = new IntersectionObserver(es => {
     if (done || !es[0].isIntersecting) return; done = true; io.disconnect();
-    const t3 = three();
-    if (!t3.prepareOdin) { odin.classList.add("awake"); return; }
-    t3.prepareOdin().then(() => {
-      if (!motion) { t3.landAll(); t3.wakeOdin(); odin.classList.add("awake"); return; }
-      const s = t3.birdPx() / 110, r = odin.getBoundingClientRect();
-      t3.odinTargets().forEach(([tx, ty], i) => {
-        const face = i === 0 ? 1 : -1, f = makeFlyer(), sx = face > 0 ? -140 : innerWidth + 140;
-        G.timeline({ delay: i * .8, onComplete: () => {
-            burst(tx, ty + 10, 9, .8); t3.land(i);
-            G.to(f, { opacity: 0, duration: .22, onComplete: () => killFlyer(f) });
-            if (i === 1) G.delayedCall(.4, () => { t3.wakeOdin(); odin.classList.add("awake"); });
-          } })
-          .set(f, { x: sx, y: r.top - 180, scale: s * .45, scaleX: s * .45 * face, opacity: 1 })
-          .to(f, { duration: 2.3, ease: "power2.inOut", motionPath: { path: [{ x: (sx + tx) / 2, y: Math.min(r.top - 60, ty - 220) }, { x: tx - face * 60, y: ty - 70 }, { x: tx, y: ty }], curviness: 1.25 }, scale: s, scaleX: s * face });
-      });
+    const perch = $$(".raven-perch", odin), eyes = $$(".glint.rv", odin), wake = () => odin.classList.add("awake");
+    if (!motion) { perch.forEach(p => p.classList.add("landed")); eyes.forEach(e => e.classList.add("on")); return wake(); }
+    const r = odin.getBoundingClientRect(), s = r.width * .2 / SPAN;
+    perch.forEach((p, i) => {
+      const [fx, fy] = p.dataset.at.split(",").map(Number), tx = r.left + fx * r.width, ty = r.top + fy * r.height;
+      const face = i === 0 ? 1 : -1, f = makeFlyer(), sx = face > 0 ? -160 : innerWidth + 160;
+      G.timeline({ delay: i * .8, onComplete: () => {
+          burst(tx, ty, 9, .8); p.classList.add("landed"); setTimeout(() => eyes[i]?.classList.add("on"), 350);
+          G.to(f, { opacity: 0, duration: .25, onComplete: () => killFlyer(f) });
+          if (i === perch.length - 1) G.delayedCall(.6, wake);
+        } })
+        .set(f, { x: sx, y: r.top - 160, scale: s * .5, scaleX: s * .5 * face, opacity: 1 })
+        .to(f, { duration: 2.3, ease: "power2.inOut", motionPath: { path: [{ x: (sx + tx) / 2, y: Math.min(r.top - 60, ty - 220) }, { x: tx - face * 70, y: ty - 60 }, { x: tx, y: ty }], curviness: 1.25 }, scale: s, scaleX: s * face });
     });
   }, { threshold: .45 });
-  const wait = () => window.blackwing3d ? io.observe(odin) : setTimeout(wait, 200);
-  wait();
+  io.observe(odin);
 })();
 
 /* =====================================================================================
@@ -466,8 +489,6 @@ $(".hero").addEventListener("click", e => { if (!e.target.closest("a, button")) 
 const API = (window.PORTFOLIO_API || "").replace(/\/$/, "");
 if (API) fetch(API + "/api/health").catch(() => {});
 const courier = $("#courier");
-miniRaven($(".cbody", courier), .18);
-el("rect", { x: 14, y: 4, width: 16, height: 7, rx: 3, fill: "#d8c79a", stroke: "#7d6331" }, $(".cbody", courier)); // the rolled letter
 function flyCourier([x0, y0]) {
   if (!motion || !MP) return Promise.resolve();
   burst(x0, y0, 14, 1.2);
