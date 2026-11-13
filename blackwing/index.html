@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Runic&display=swap" rel="stylesheet">
 <link rel="modulepreload" href="blackwing/raven3d.js?v=12">
-<link rel="stylesheet" href="blackwing/blackwing.css?v=7">
+<link rel="stylesheet" href="blackwing/blackwing.css?v=8">
 </head>
 <body>
 <a class="skip" href="#thought">Skip to the work</a>
@@ -127,6 +127,7 @@
       <div><p class="mono kicker-line" data-runes>Mímir's Well · Muninn's memory</p><h2 data-runes>What the well remembers</h2></div>
     </header>
     <figure class="well">
+      <div class="well-3d" aria-hidden="true"></div>
       <canvas id="well" aria-hidden="true"></canvas>
       <figcaption>Odin gave one eye to drink from this well. It still watches from the water. <span class="mono">touch the surface</span></figcaption>
     </figure>
@@ -168,12 +169,12 @@
       <div><p class="mono kicker-line" data-runes>Hliðskjálf · dusk</p><h2 data-runes>The ravens return</h2></div>
     </header>
     <div class="dusk-grid">
-      <figure class="odin" aria-label="Odin, the All-Father: a dark silhouette with Gungnir and a ring of runes behind him. His two ravens land on his shoulders, and only his one eye lights.">
-        <img class="odin-sil" src="blackwing/odin.webp" alt="" width="900" height="900" loading="lazy" decoding="async">
-        <img class="raven-perch" data-at=".37,.47" src="blackwing/ravenL.webp" alt="" width="900" height="900" loading="lazy" decoding="async">
-        <img class="raven-perch" data-at=".655,.45" src="blackwing/ravenR.webp" alt="" width="900" height="900" loading="lazy" decoding="async">
-        <i class="glint rv" style="left:41.84%;top:43.86%"></i><i class="glint rv" style="left:60.2%;top:41.73%"></i>
-        <i class="glint odin-eye" style="left:52.83%;top:44.99%"></i>
+      <figure class="odin" aria-label="Odin, the All-Father: a dark figure in a fur mantle, Gungnir in hand, lit only at the edges. His two ravens land on his shoulders, and only his one eye lights.">
+        <img class="odin-sil" src="blackwing/odin.webp?v=2" alt="" width="900" height="900" loading="lazy" decoding="async">
+        <img class="raven-perch" data-at=".285,.448" src="blackwing/ravenL.webp?v=2" alt="" width="900" height="900" loading="lazy" decoding="async">
+        <img class="raven-perch" data-at=".599,.425" src="blackwing/ravenR.webp?v=2" alt="" width="900" height="900" loading="lazy" decoding="async">
+        <i class="glint rv" style="left:36.19%;top:38.88%"></i><i class="glint rv" style="left:55.47%;top:36.83%"></i>
+        <i class="glint odin-eye" style="left:50.43%;top:39.3%"></i>
         <figcaption class="odin-cap mono">The All-Father · one eye given to Mímir, one that sees everything</figcaption>
       </figure>
       <div class="contact-copy">
@@ -219,6 +220,7 @@
 
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }</script>
 <script type="module" async src="blackwing/raven3d.js?v=12"></script>
+<script type="module" async src="blackwing/well3d.js?v=3"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js" defer></script>
