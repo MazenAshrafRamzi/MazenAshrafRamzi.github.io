@@ -456,13 +456,13 @@ document.addEventListener("click", e => {
   const io = new IntersectionObserver(es => {
     if (done || !es[0].isIntersecting) return; done = true; io.disconnect();
     const perch = $$(".raven-perch", odin), eyes = $$(".glint.rv", odin), wake = () => odin.classList.add("awake");
-    if (!motion) { perch.forEach(p => p.classList.add("landed")); eyes.forEach(e => e.classList.add("on")); return wake(); }
+    if (!motion) { perch.forEach((p, i) => { p.classList.add("landed"); three().duskLand?.(i); }); eyes.forEach(e => e.classList.add("on")); return wake(); }
     const r = odin.getBoundingClientRect(), s = r.width * .2 / SPAN;
     perch.forEach((p, i) => {
       const [fx, fy] = p.dataset.at.split(",").map(Number), tx = r.left + fx * r.width, ty = r.top + fy * r.height;
       const face = i === 0 ? 1 : -1, f = makeFlyer(), sx = face > 0 ? -160 : innerWidth + 160;
       G.timeline({ delay: i * .8, onComplete: () => {
-          burst(tx, ty, 9, .8); p.classList.add("landed"); setTimeout(() => eyes[i]?.classList.add("on"), 350);
+          burst(tx, ty, 9, .8); p.classList.add("landed"); three().duskLand?.(i); setTimeout(() => eyes[i]?.classList.add("on"), 350);
           G.to(f, { opacity: 0, duration: .25, onComplete: () => killFlyer(f) });
           if (i === perch.length - 1) G.delayedCall(.6, wake);
         } })
