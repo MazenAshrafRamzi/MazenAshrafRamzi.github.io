@@ -19,7 +19,8 @@ const NS = "http://www.w3.org/2000/svg";
 const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent && parent.appendChild(e); return e; };
 const rnd = (a, b) => a + Math.random() * (b - a), clamp01 = t => Math.max(0, Math.min(1, t));
 const onView = (target, cb, opts = {}) => { const io = new IntersectionObserver(es => es.forEach(e => cb(e.isIntersecting, e)), opts); io.observe(target); return io; };
-let paused = false;                       // canvases and 3D pause while a demo or video is open
+let paused = false;
+setTimeout(() => { if (!window.blackwing3d) document.documentElement.classList.add("no-webgl"); }, 9000); // 3D never arrived: use the 2D fallbacks                       // canvases and 3D pause while a demo or video is open
 window.blackwing = { isPaused: () => paused };
 const three = () => window.blackwing3d || {};
 
@@ -334,7 +335,7 @@ document.addEventListener("click", e => {
   let w, h, cx, cy, rx, ry, rim, live = false, lastT = 0, blink = 0, nextBlink = 3, look = [0, 0], lookTo = [0, 0];
   const ripples = [];
   function size() {
-    const d = Math.min(devicePixelRatio || 1, 1.5); w = cv.clientWidth; h = cv.clientHeight; cv.width = w * d; cv.height = h * d; g.setTransform(d, 0, 0, d, 0, 0);
+    const d = Math.min(devicePixelRatio || 1, 1.5); w = cv.clientWidth; h = cv.clientHeight; if (!w || !h) return false; cv.width = w * d; cv.height = h * d; g.setTransform(d, 0, 0, d, 0, 0);
     cx = w / 2; cy = h * .44; rx = Math.min(w * .36, 300); ry = rx * .3;
     rim = document.createElement("canvas"); rim.width = w * d; rim.height = h * d; const r = rim.getContext("2d"); r.setTransform(d, 0, 0, d, 0, 0);
     const shaft = r.createLinearGradient(0, cy - ry, 0, cy + ry * 2.6); shaft.addColorStop(0, "#0b0a12"); shaft.addColorStop(1, "#050507");
@@ -349,6 +350,7 @@ document.addEventListener("click", e => {
       r.fillStyle = "rgba(201,164,92,.45)"; r.font = `${Math.round(rx * .05)}px "Noto Sans Runic", serif`; r.fillText(RUNES[(Math.random() * RUNES.length) | 0], x, y); }
   }
   function draw(now) {
+    if (!rim || !w || !h) return;                       // only the no-WebGL fallback shows this canvas
     const t = now / 1000, dt = Math.min(.05, t - (lastT || t)); lastT = t;
     g.clearRect(0, 0, w, h);
     g.save(); g.beginPath(); g.ellipse(cx, cy, rx * 1.04, ry * 1.04, 0, 0, Math.PI * 2); g.clip();
@@ -419,49 +421,30 @@ document.addEventListener("click", e => {
 })();
 
 /* =====================================================================================
-   10. DUSK: Odin. His mantle is traced from his cloak; the ravens land on it and whisper in his ears.
+   10. DUSK: the ravens fly home to the All-Father (3D, raven3d.js) and land on his shoulders; then his eye ignites.
    ===================================================================================== */
 (() => {
-  const odin = $(".odin"), cloak = $("#cloak"); if (!odin || !cloak) return;
-  const len = cloak.getTotalLength(), pts = [];
-  for (let i = 0; i <= 600; i++) { const p = cloak.getPointAtLength(len * i / 600); if (p.y < 430) pts.push(p); }
-  const topY = x => { let best = 1e9; for (const p of pts) if (Math.abs(p.x - x) < 6 && p.y < best) best = p.y; return best; };
-  const SH = [[130, 1], [470, -1]].map(([x, face]) => [x, topY(x), face]);
-  // the mantle: a fur-edged band over the shoulders, drawn in front of the ravens so their talons sink into it
-  const xs = []; for (let x = 44; x <= 556; x += 6) xs.push(x);
-  const fur = x => { let lift = 0; for (const [sx, , f] of SH) { const d = (x - sx) * f; if (d > -18 && d < 42) lift = Math.max(lift, 9 - Math.abs(d - 12) * .18); } return lift; };
-  const topPts = xs.map((x, i) => `${x} ${(topY(x) + 3 - fur(x) - (i % 2 ? 2.5 : 0)).toFixed(1)}`);
-  $("#mantle").setAttribute("d", `M${topPts.join("L")}L556 470C470 430 130 430 44 470Z`);
-  const ears = [[252, 226], [348, 226]];
-
-  // his one eye follows you
-  const eye = $(".odin-eye");
-  if (fine && motion) { const qx = G.quickTo(eye, "x", { duration: .6 }), qy = G.quickTo(eye, "y", { duration: .6 });
-    addEventListener("pointermove", e => { if (!odin.classList.contains("awake")) return; const r = odin.getBoundingClientRect();
-      qx(Math.max(-1, Math.min(1, (e.clientX - r.left - r.width * .48) / r.width)) * 3.5); qy(Math.max(-1, Math.min(1, (e.clientY - r.top - r.height * .27) / r.height)) * 2.5); }, { passive: true }); }
-  // he listens while you write
-  $("#contact-form").addEventListener("input", () => { if (motion) G.fromTo(".odin-eye .halo", { scale: 1.35, transformOrigin: "50% 50%" }, { scale: 1, duration: .8, ease: "power2.out", overwrite: true }); });
-
+  const odin = $(".odin"); if (!odin) return;
+  $("#contact-form").addEventListener("input", () => three().flareOdin?.());   // he listens while you write
   let done = false;
   const io = new IntersectionObserver(es => {
     if (done || !es[0].isIntersecting) return; done = true; io.disconnect();
     const t3 = three();
-    if (!motion) { t3.perchOnOdin?.(SH, ears, true); odin.classList.add("awake"); return; }
-    const go = () => {
-      const r = odin.getBoundingClientRect(), k = r.width / 800, birdPx = .8 * 280 * k;
-      SH.forEach(([x, y, face], i) => {
-        const [tx, ty] = t3.odinScreen ? t3.odinScreen(x - face * 12, y - 54) : [r.left + (x + 100) * k, r.top + y * k];
-        const f = makeFlyer(), s = birdPx / 110, sx = face > 0 ? -140 : innerWidth + 140;
+    if (!t3.prepareOdin) { odin.classList.add("awake"); return; }
+    t3.prepareOdin().then(() => {
+      if (!motion) { t3.landAll(); t3.wakeOdin(); odin.classList.add("awake"); return; }
+      const s = t3.birdPx() / 110, r = odin.getBoundingClientRect();
+      t3.odinTargets().forEach(([tx, ty], i) => {
+        const face = i === 0 ? 1 : -1, f = makeFlyer(), sx = face > 0 ? -140 : innerWidth + 140;
         G.timeline({ delay: i * .8, onComplete: () => {
-            burst(tx, ty + 20, 9, .8); t3.land?.(i);
-            G.to(f, { opacity: t3.ok ? 0 : 1, duration: .22, onComplete: () => t3.ok && killFlyer(f) });
-            if (i === 1) G.delayedCall(.5, () => odin.classList.add("awake"));
+            burst(tx, ty + 10, 9, .8); t3.land(i);
+            G.to(f, { opacity: 0, duration: .22, onComplete: () => killFlyer(f) });
+            if (i === 1) G.delayedCall(.4, () => { t3.wakeOdin(); odin.classList.add("awake"); });
           } })
           .set(f, { x: sx, y: r.top - 180, scale: s * .45, scaleX: s * .45 * face, opacity: 1 })
           .to(f, { duration: 2.3, ease: "power2.inOut", motionPath: { path: [{ x: (sx + tx) / 2, y: Math.min(r.top - 60, ty - 220) }, { x: tx - face * 60, y: ty - 70 }, { x: tx, y: ty }], curviness: 1.25 }, scale: s, scaleX: s * face });
       });
-    };
-    (t3.perchOnOdin ? t3.perchOnOdin(SH, ears, false) : Promise.resolve()).then(go, go);
+    });
   }, { threshold: .45 });
   const wait = () => window.blackwing3d ? io.observe(odin) : setTimeout(wait, 200);
   wait();

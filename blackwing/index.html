@@ -17,9 +17,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Runic&display=swap" rel="stylesheet">
-<link rel="modulepreload" href="blackwing/raven3d.js?v=3">
-<link rel="preload" href="blackwing/raven.glb" as="fetch" crossorigin>
-<link rel="stylesheet" href="blackwing/blackwing.css?v=3">
+<link rel="modulepreload" href="blackwing/raven3d.js?v=11">
+<link rel="stylesheet" href="blackwing/blackwing.css?v=5">
 </head>
 <body>
 <a class="skip" href="#thought">Skip to the work</a>
@@ -129,6 +128,7 @@
       <div><p class="mono kicker-line" data-runes>Mímir's Well · Muninn's memory</p><h2 data-runes>What the well remembers</h2></div>
     </header>
     <figure class="well">
+      <div class="well-3d" aria-hidden="true"></div>
       <canvas id="well" aria-hidden="true"></canvas>
       <figcaption>Odin gave one eye to drink from this well. It still watches from the water. <span class="mono">touch the surface</span></figcaption>
     </figure>
@@ -170,47 +170,9 @@
       <div><p class="mono kicker-line" data-runes>Hliðskjálf · dusk</p><h2 data-runes>The ravens return</h2></div>
     </header>
     <div class="dusk-grid">
-      <figure class="odin" aria-label="Odin, the All-Father, a cloaked shadow with one burning eye. His two ravens land on his shoulders.">
-        <svg class="odin-back" viewBox="-100 0 800 800" aria-hidden="true">
-          <defs>
-            <linearGradient id="rimG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8f9ae0"/><stop offset=".55" stop-color="#5b6fb8" stop-opacity=".5"/><stop offset="1" stop-color="#45d6c4" stop-opacity=".7"/></linearGradient>
-            <radialGradient id="eyeGlow"><stop offset="0" stop-color="#ffe7a8"/><stop offset=".18" stop-color="#e3b55a" stop-opacity=".85"/><stop offset=".5" stop-color="#c9a45c" stop-opacity=".18"/><stop offset="1" stop-color="#c9a45c" stop-opacity="0"/></radialGradient>
-            <linearGradient id="mistG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050507" stop-opacity="0"/><stop offset="1" stop-color="#050507"/></linearGradient>
-            <radialGradient id="haloG2" cx="50%" cy="34%" r="50%"><stop offset="0" stop-color="#3a2a6b" stop-opacity=".55"/><stop offset="1" stop-color="#050507" stop-opacity="0"/></radialGradient>
-          </defs>
-          <rect x="-100" y="0" width="800" height="800" fill="url(#haloG2)"/>
-          <g class="gungnir">
-            <path d="M551.5 0C566 32 569 64 558 98L551.5 112 545 98C534 64 537 32 551.5 0Z"/><rect x="539" y="110" width="25" height="6" rx="2"/><rect x="548" y="114" width="7" height="686"/>
-            <path class="spear-runes" d="M551.5 22V92M547 40l9 8M547 58l9-8M547 74h9"/>
-          </g>
-          <g class="body">
-            <path id="cloak" d="M300 262C266 262 250 274 240 288C192 300 136 302 100 320C70 336 55 368 48 412C35 500 22 640 6 800L594 800C578 640 565 500 552 412C545 368 530 336 500 320C464 302 408 300 360 288C350 274 334 262 300 262Z"/>
-            <path d="M248 196C246 240 262 268 300 272C338 268 354 240 352 196Z"/>
-            <path d="M534 470C538 452 566 450 572 466C576 484 562 496 548 494C536 492 530 482 534 470Z"/>
-          </g>
-          <g class="beard">
-            <path d="M258 236C254 290 266 352 290 420C294 432 306 432 310 420C334 352 346 290 342 236C330 252 316 258 300 258C284 258 270 252 258 236Z"/>
-            <path d="M266 238C282 228 318 228 334 238C318 248 282 248 266 238Z"/>
-            <path class="strands" d="M276 256C278 300 286 350 296 404M300 262C300 310 301 360 300 418M324 256C322 300 314 350 304 404M288 258C290 300 294 340 298 380M312 258C310 300 306 340 302 380"/>
-          </g>
-          <g class="hat">
-            <path d="M246 182C250 140 262 104 284 80C296 66 312 58 326 62C334 64 330 74 322 80C346 100 356 140 356 182Z"/>
-            <path d="M108 196C150 172 230 164 300 164C370 164 450 172 492 196C496 204 484 210 468 208C410 196 360 192 300 192C240 192 190 196 132 208C116 210 104 204 108 196Z"/>
-          </g>
-          <g class="valknut" fill="none"><path d="M300 296l13 22h-26zM292 304l13 22h-26zM308 304l13 22h-26z"/></g>
-          <g class="rim" fill="none" stroke="url(#rimG)">
-            <path d="M48 412C55 368 70 336 100 320C136 302 192 300 240 288C250 274 266 262 300 262C334 262 350 274 360 288C408 300 464 302 500 320C530 336 545 368 552 412"/>
-            <path d="M108 196C150 172 230 164 300 164C370 164 450 172 492 196"/>
-            <path d="M246 182C250 140 262 104 284 80C296 66 312 58 326 62C334 64 330 74 322 80C346 100 356 140 356 182"/>
-            <path d="M258 236C254 290 266 352 290 420M342 236C346 290 334 352 310 420" stroke-opacity=".7"/>
-            <path d="M120 362C112 480 104 620 96 800M210 336C206 470 200 640 196 800M400 336C404 470 410 640 416 800M480 362C490 480 498 620 506 800" stroke-opacity=".18"/>
-          </g>
-          <ellipse class="face-light" cx="283" cy="226" rx="30" ry="13" fill="url(#eyeGlow)"/>
-          <g class="odin-eye"><circle class="halo" cx="283" cy="216" r="18" fill="url(#eyeGlow)"/><circle class="iris" cx="283" cy="216" r="2.6" fill="#fff0c4"/></g>
-          <rect x="-100" y="600" width="800" height="200" fill="url(#mistG)"/>
-        </svg>
+      <figure class="odin" aria-label="Odin, the All-Father: a cloaked shadow with one burning eye, his spear Gungnir and a ring of runes behind him. His two ravens land on his shoulders.">
         <div class="odin-3d"></div>
-        <svg class="odin-front" viewBox="-100 0 800 800" aria-hidden="true"><path id="mantle"/></svg>
+        <figcaption class="odin-cap mono">The All-Father · one eye given to Mímir, one that sees everything</figcaption>
       </figure>
       <div class="contact-copy">
         <p class="lore small-lore">At dusk Huginn and Muninn come home to the All-Father and whisper all they have seen. Now it's your turn: send a raven to Blackwing.</p>
@@ -243,6 +205,7 @@
   <span class="sig"><b>ᛒᛚᚨᚲᚴᚹᛁᛜ</b> © 2026 Mazen Ashraf Refaat</span>
   <span class="motto">“For Hugin I fear lest he come not home, but for Munin my care is more.” <small>Odin, Grímnismál</small></span>
   <a href="blackwing/#top">Return to Hliðskjálf ↑</a>
+  <p class="credits">3D models: <a href="https://sketchfab.com/3d-models/odin-alfor-a0a9e5b682004ee38c86870c5ee0c060" target="_blank" rel="noopener">ODIN Alföðr</a> by Tom Holbein / VDCnordic (CC BY 4.0) · <a href="https://sketchfab.com/3d-models/realistic-human-eye-417cbd1aac554ea189966250b784ab6f" target="_blank" rel="noopener">Realistic Human Eye</a> by Alexander Antipov (CC BY 4.0) · <a href="https://sketchfab.com/3d-models/common-raven-ec9c0ac738fd4495af334ea2092e8d89" target="_blank" rel="noopener">Common raven</a> by Virtual Museums of Małopolska (CC0). Modified for this site.</p>
 </footer>
 
 <div id="modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -253,12 +216,12 @@
 </div>
 
 <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }</script>
-<script type="module" async src="blackwing/raven3d.js?v=3"></script>
+<script type="module" async src="blackwing/raven3d.js?v=11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js" defer></script>
 <script src="config.js?v=bw1" defer></script>
 <script src="blackwing/projects.js?v=1" defer></script>
-<script src="blackwing/blackwing.js?v=3" defer></script>
+<script src="blackwing/blackwing.js?v=6" defer></script>
 </body>
 </html>

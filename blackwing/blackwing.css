@@ -305,3 +305,15 @@ h2 { margin: 0; font: 700 clamp(34px, 5vw, 64px)/1.02 var(--display); letter-spa
   .tree { left: 18px; }
 }
 @media (max-width: 700px) { .birds { width: 100vw; height: 64vh; margin-top: -24vh; } .runes { margin-top: -24vh; } .hero-copy { padding-top: 34vh; } }
+
+/* ---------- v4: 3D Odin, 3D well ---------- */
+.odin { aspect-ratio: 1; max-height: 86vh; background: radial-gradient(50% 45% at 50% 40%, #2b204a66, transparent 70%); }
+.odin-3d { position: absolute; inset: 0; }
+.odin-cap { position: absolute; left: 0; right: 0; bottom: 4px; text-align: center; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); opacity: 0; transition: opacity 1.4s; }
+.odin.awake .odin-cap { opacity: 1; color: var(--gold); }
+.well-3d { display: block; width: 100%; height: 340px; cursor: crosshair; }
+#well { display: none; }
+html.no-webgl #well { display: block; } html.no-webgl .well-3d { display: none; }
+@media (max-width: 680px) { .well-3d { height: 240px; } }
+.foot .credits { flex-basis: 100%; margin: 6px 0 0; font-size: 11px; color: var(--dim); letter-spacing: .02em; }
+.foot .credits a { color: var(--mist); }
