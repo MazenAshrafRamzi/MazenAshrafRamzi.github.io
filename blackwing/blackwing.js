@@ -446,30 +446,45 @@ document.addEventListener("click", e => {
 })();
 
 /* =====================================================================================
-   10. DUSK: Odin is a silhouette rendered from the 3D statue in Blender. The ravens fly home and land on his shoulders;
-   then only his left eye lights, like theirs.
+   10. DUSK: Odin waits with his head bowed. Huginn and Muninn fly home and land on his shoulders, he raises his head,
+   and his one eye opens. The flight happens INSIDE his figure (coordinates relative to it), so it ends on his
+   shoulders wherever he is on screen, however fast you scroll.
    ===================================================================================== */
 (() => {
   const odin = $(".odin"); if (!odin) return;
   $("#contact-form").addEventListener("input", () => { odin.classList.remove("flare"); void odin.offsetWidth; odin.classList.add("flare"); });  // he listens while you write
+  const head = $(".odin-head", odin), FR = +(head?.dataset.frames || 0);
+  let sheetReady = false;
+  const setFrame = k => { head.style.backgroundPosition = `0 ${(k / (FR - 1)) * 100}%`; };
+  let sheet = null;
+  const fetchSheet = () => { if (sheet || !head || !FR || !motion) return sheet; const img = new Image(); img.src = head.dataset.src;
+    return sheet = (img.decode ? img.decode() : Promise.resolve()).then(() => { head.style.backgroundImage = `url("${img.src}")`; setFrame(0); sheetReady = true; }).catch(() => {}); };
+  // the head-raise frames (150 KB) load quietly once the page has settled, so they are ready whenever you reach him
+  addEventListener("load", () => (window.requestIdleCallback || setTimeout)(fetchSheet, { timeout: 2500 }));
   let done = false;
   const io = new IntersectionObserver(es => {
     if (done || !es[0].isIntersecting) return; done = true; io.disconnect();
-    const perch = $$(".raven-perch", odin), eyes = $$(".glint.rv", odin), wake = () => odin.classList.add("awake");
+    const perch = $$(".raven-perch", odin), eyes = $$(".glint.rv", odin), wake = () => { odin.classList.remove("bowed"); odin.classList.add("awake"); };
     if (!motion) { perch.forEach((p, i) => { p.classList.add("landed"); three().duskLand?.(i); }); eyes.forEach(e => e.classList.add("on")); return wake(); }
-    const r = odin.getBoundingClientRect(), s = r.width * .2 / SPAN;
+    fetchSheet(); const bowed = sheetReady; if (bowed) odin.classList.add("bowed");
+    const raise = () => { if (!bowed) return wake(); const o = { k: 0 };
+      G.to(o, { k: FR - 1, duration: 1.7, ease: "power2.inOut", onUpdate: () => setFrame(Math.round(o.k)), onComplete: () => G.delayedCall(.15, wake) }); };
+    const w = odin.clientWidth, h = odin.clientHeight, s = w * .2 / SPAN;
+    let home = 0;
     perch.forEach((p, i) => {
-      const [fx, fy] = p.dataset.at.split(",").map(Number), tx = r.left + fx * r.width, ty = r.top + fy * r.height;
-      const face = i === 0 ? 1 : -1, f = makeFlyer(), sx = face > 0 ? -160 : innerWidth + 160;
+      const [fx, fy] = p.dataset.at.split(",").map(Number), tx = fx * w, ty = fy * h, face = i === 0 ? 1 : -1;
+      const f = makeFlyer(false, "perch-flyer"); odin.appendChild(f);
+      const sx = face > 0 ? -w * .55 : w * 1.55, sy = -h * .3;
       G.timeline({ delay: i * .8, onComplete: () => {
-          burst(tx, ty, 9, .8); p.classList.add("landed"); three().duskLand?.(i); setTimeout(() => eyes[i]?.classList.add("on"), 350);
-          G.to(f, { opacity: 0, duration: .25, onComplete: () => killFlyer(f) });
-          if (i === perch.length - 1) G.delayedCall(.6, wake);
+          const r = odin.getBoundingClientRect(); burst(r.left + tx, r.top + ty, 9, .8);
+          p.classList.add("landed"); three().duskLand?.(i); setTimeout(() => eyes[i]?.classList.add("on"), 350);
+          G.to(f, { opacity: 0, duration: .2, onComplete: () => killFlyer(f) });
+          if (++home === perch.length) G.delayedCall(.7, raise);
         } })
-        .set(f, { x: sx, y: r.top - 160, scale: s * .5, scaleX: s * .5 * face, opacity: 1 })
-        .to(f, { duration: 2.3, ease: "power2.inOut", motionPath: { path: [{ x: (sx + tx) / 2, y: Math.min(r.top - 60, ty - 220) }, { x: tx - face * 70, y: ty - 60 }, { x: tx, y: ty }], curviness: 1.25 }, scale: s, scaleX: s * face });
+        .set(f, { x: sx, y: sy, scale: s * .5, scaleX: s * .5 * face, opacity: 1 })
+        .to(f, { duration: 2.3, ease: "power2.inOut", motionPath: { path: [{ x: (sx + tx) / 2, y: Math.min(sy + h * .1, ty - h * .3) }, { x: tx - face * w * .1, y: ty - h * .08 }, { x: tx, y: ty }], curviness: 1.25 }, scale: s, scaleX: s * face });
     });
-  }, { threshold: .45 });
+  }, { threshold: .4 });
   io.observe(odin);
 })();
 

@@ -6,19 +6,20 @@
 <!-- Preview copy. Everything (media, play/, config.js) resolves from the site root, so this page can be
      promoted to the root later by moving its files up one level and removing this <base> tag. -->
 <base href="../">
-<title>Blackwing | Mazen Ashraf, Game & XR Developer</title>
-<meta name="description" content="Blackwing: the portfolio of Mazen Ashraf, Unity game and XR developer, told as a day in Odin's hall. Playable WebGL worlds, XR, simulations and interactive pitches.">
-<meta property="og:title" content="Blackwing | Mazen Ashraf">
+<title>Mazen Ashraf | Game & XR Developer</title>
+<meta name="description" content="The portfolio of Mazen Ashraf, Unity game and XR developer, told as a day in Odin's hall. Playable WebGL worlds, XR, simulations and interactive pitches.">
+<meta property="og:title" content="Mazen Ashraf | Game & XR Developer">
 <meta property="og:description" content="Odin's ravens fly out across the nine worlds and return with every deed. Unity game & XR developer.">
 <meta property="og:image" content="media/museum.jpg">
 <meta name="theme-color" content="#050507">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23050507'/%3E%3Cpath d='M32 14c-6 0-10 5-10 10l-14 6 14 2c1 8 5 14 10 18 5-4 9-10 10-18l14-2-14-6c0-5-4-10-10-10z' fill='%2316141f' stroke='%23c9a45c' stroke-width='2'/%3E%3Ccircle cx='28' cy='24' r='2.5' fill='%23e8c87a'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="modulepreload" href="blackwing/vendor/three/three.module.min.js">
+<link rel="preload" href="blackwing/raven.glb" as="fetch" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Runic&display=swap" rel="stylesheet">
-<link rel="modulepreload" href="blackwing/raven3d.js?v=14">
-<link rel="stylesheet" href="blackwing/blackwing.css?v=11">
+<link rel="modulepreload" href="blackwing/raven3d.js?v=15">
+<link rel="stylesheet" href="blackwing/blackwing.css?v=13">
 </head>
 <body>
 <a class="skip" href="#thought">Skip to the work</a>
@@ -46,9 +47,9 @@
 <div class="cursor" aria-hidden="true"><i></i></div>
 
 <header class="nav">
-  <a href="blackwing/#top" class="brand" aria-label="Blackwing, back to Hliðskjálf">
+  <a href="blackwing/#top" class="brand" aria-label="Mazen Ashraf, back to Hliðskjálf">
     <svg viewBox="-40 -24 80 48" aria-hidden="true"><path d="M0-14c-4 0-7 3-7 7L-36 2l26 3c1 6 5 11 10 14 5-3 9-8 10-14l26-3L7-7c0-4-3-7-7-7z"/><circle cx="-2.5" cy="-8" r="1.6"/></svg>
-    <span>Blackwing</span>
+    <span>Mazen Ashraf</span>
   </a>
   <nav class="top-links" aria-label="Sections">
     <a href="blackwing/#thought">Deeds</a><a href="blackwing/#memory">Memory</a><a href="blackwing/#hoard">Forge</a>
@@ -81,8 +82,8 @@
       <div class="birds" role="img" aria-label="Huginn and Muninn, two ravens on their perches, their gold eyes following you"></div>
     </div>
     <div class="hero-copy">
-      <p class="eyebrow mono"><span class="dot"></span>Mazen Ashraf · Game &amp; XR developer · open to work</p>
-      <h1 id="hero-title" class="title"><span class="word" data-runes>Blackwing</span></h1>
+      <p class="eyebrow mono"><span class="dot"></span>Game &amp; XR developer · open to work</p>
+      <h1 id="hero-title" class="title"><span class="word" data-runes>Mazen Ashraf</span></h1>
       <p class="tagline">I build worlds you can <em>play</em>, and watch over every frame.</p>
       <div class="cta">
         <a href="blackwing/#ravens" class="btn gold">Begin the saga</a>
@@ -170,15 +171,16 @@
     </header>
     <div class="dusk-grid">
       <figure class="odin" aria-label="Odin, the All-Father: the Wanderer in a wide hat and fur mantle, a dark figure under a ring of runes. His two ravens land on his shoulders, and only his one eye lights.">
-        <img class="odin-sil" src="blackwing/odin.webp?v=5" alt="" width="900" height="900" loading="lazy" decoding="async">
+        <img class="odin-sil" src="blackwing/odin.webp?v=6" alt="" width="900" height="900" loading="lazy" decoding="async">
+        <div class="odin-head" data-src="blackwing/odin-raise.webp?v=1" data-frames="12" aria-hidden="true"></div>
         <img class="raven-perch" data-at=".17,.565" style="left:3.78%;top:39.44%" src="blackwing/ravenL.webp?v=3" alt="" width="360" height="360" loading="lazy" decoding="async">
         <img class="raven-perch" data-at=".83,.565" style="left:74.22%;top:39.44%" src="blackwing/ravenR.webp?v=3" alt="" width="360" height="360" loading="lazy" decoding="async">
         <i class="glint rv" style="left:22.37%;top:45.32%"></i><i class="glint rv" style="left:77.56%;top:45.37%"></i>
-        <i class="glint odin-eye" style="left:55.58%;top:36.02%"></i>
+        <i class="glint odin-eye" style="left:55.56%;top:34.61%"></i>
         <figcaption class="odin-cap mono">The All-Father · one eye given to Mímir, one that sees everything</figcaption>
       </figure>
       <div class="contact-copy">
-        <p class="lore small-lore">At dusk Huginn and Muninn come home to the All-Father and whisper all they have seen. Now it's your turn: send a raven to Blackwing.</p>
+        <p class="lore small-lore">At dusk Huginn and Muninn come home to the All-Father and whisper all they have seen. Now it's your turn: send a raven to Mazen.</p>
         <form id="contact-form" class="scroll-form">
           <label>Your name<input name="name" required maxlength="120" autocomplete="name"></label>
           <label>Your email<input name="email" type="email" required maxlength="200" autocomplete="email"></label>
@@ -218,14 +220,14 @@
   <div id="modal-body" class="modal-body"></div>
 </div>
 
-<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }</script>
-<script type="module" async src="blackwing/raven3d.js?v=14"></script>
-<script type="module" async src="blackwing/well3d.js?v=4"></script>
+<script type="importmap">{ "imports": { "three": "./blackwing/vendor/three/three.module.min.js", "three/addons/": "./blackwing/vendor/three/addons/" } }</script>
+<script type="module" async src="blackwing/raven3d.js?v=15"></script>
+<script type="module" async src="blackwing/well3d.js?v=5"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js" defer></script>
 <script src="config.js?v=bw1" defer></script>
 <script src="blackwing/projects.js?v=1" defer></script>
-<script src="blackwing/blackwing.js?v=11" defer></script>
+<script src="blackwing/blackwing.js?v=13" defer></script>
 </body>
 </html>

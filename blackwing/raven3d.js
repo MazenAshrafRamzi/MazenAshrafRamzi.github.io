@@ -99,8 +99,10 @@ if (renderer && heroHost) {
   }
 
   const birds = [], duskBirds = [], landed = new Set();
-  new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath("https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/gltf/"))
-    .loadAsync("blackwing/raven.glb").then(gltf => {
+  // hosted with the site (no CDN on the critical path) and retried, so the ravens are there on every load
+  const loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath("blackwing/vendor/three/draco/"));
+  const load = (n = 0) => loader.loadAsync("blackwing/raven.glb").catch(e => { if (n < 3) return new Promise(r => setTimeout(r, 800 * (n + 1))).then(() => load(n + 1)); throw e; });
+  load().then(gltf => {
       gltf.scene.traverse(o => { if (o.isMesh) { o.frustumCulled = false; const m = o.material;
         m.color.setScalar(.5); m.roughness = .6; m.metalness = .08; if (m.normalScale) m.normalScale.setScalar(1.2); if (m.map) m.map.anisotropy = 4; } });
       gltf.scene.updateMatrixWorld(true);
