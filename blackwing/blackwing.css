@@ -114,7 +114,7 @@ main { padding: 0 18px; }
 .hero-copy { position: relative; align-self: end; display: grid; justify-items: center; text-align: center; gap: 14px; padding-top: 38vh; }
 .eyebrow { margin: 0; font-size: 12px; color: var(--mist); letter-spacing: .14em; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
 .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold-hi); box-shadow: 0 0 12px var(--gold); }
-.title { margin: 0; font: 900 clamp(34px, 10.6vw, 176px)/.9 var(--display); letter-spacing: .06em; text-transform: uppercase; color: var(--bone); white-space: nowrap;
+.title { margin: 0; font: 900 clamp(28px, 7.3vw, 126px)/.9 var(--display); letter-spacing: .05em; text-transform: uppercase; color: var(--bone); white-space: nowrap;
   text-shadow: 0 6px 30px #000c, 0 0 40px #5c3f8f55; }
 .title .ch { display: inline-block; min-width: .5em; text-align: center; }
 .title .ch.r { font-family: var(--rune); font-weight: 400; color: var(--gold-hi); text-shadow: 0 0 24px #c9a45c; }
@@ -371,3 +371,10 @@ html.ravens-3d .odin .raven-perch, html.ravens-3d .odin .glint.rv { display: non
 .odin.awake.flare .odin-eye { animation: eyeflare .9s ease-out; }
 @keyframes eyelight { 50% { box-shadow: 0 0 7px 2px #ffe2a0, 0 0 24px 7px #e3a83caa, 0 0 56px 18px #c9a45c44; } }
 @keyframes eyeflare { 30% { box-shadow: 0 0 9px 3px #fff0c4, 0 0 34px 10px #ffcf73, 0 0 80px 26px #c9a45c66; } }
+
+/* ---------- v10: he raises his head (12 frames rendered in Blender) before his eye opens ---------- */
+.odin .odin-head { position: absolute; left: 0; top: 0; width: 100%; height: 62%; display: none; pointer-events: none; z-index: 1;
+  background: no-repeat 0 0 / 100% 1200%; }
+.odin.bowed .odin-head { display: block; }
+.odin.bowed .odin-sil { clip-path: inset(62% 0 0 0); }
+.odin .perch-flyer { position: absolute; left: 0; top: 0; margin: -60px 0 0 -60px; z-index: 4; }
