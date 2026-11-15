@@ -383,3 +383,6 @@ html.ravens-3d .odin .raven-perch, html.ravens-3d .odin .glint.rv { display: non
 .odin { width: min(100%, 86vh, 86svh) !important; max-height: none !important; aspect-ratio: 1 / 1; margin-inline: auto !important; }
 @media (max-width: 900px) { .odin { width: min(100%, 560px, 86vh, 86svh) !important; } }
 html.in-modal .cursor { display: none !important; }
+
+/* ---------- v12: the well fades into the page at its edges (its mist and glow used to stop at a hard rectangle) ---------- */
+.well-3d canvas { -webkit-mask-image: radial-gradient(closest-side ellipse at 50% 50%, #000 64%, transparent 100%); mask-image: radial-gradient(closest-side ellipse at 50% 50%, #000 64%, transparent 100%); }

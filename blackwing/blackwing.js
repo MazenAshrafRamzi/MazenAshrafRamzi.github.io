@@ -170,8 +170,8 @@ function takeoff() {
     const f = makeFlyer(), dirn = i === 0 ? 1 : -1;   // Huginn to the right, Muninn to the left
     burst(x, y, 8, 1);
     G.timeline({ onComplete: () => killFlyer(f) })
-      .set(f, { x, y, scale: s, scaleX: s * dirn, opacity: 1 })
-      .to(f, { duration: 1.7, ease: "power2.in", motionPath: { path: [{ x: x + dirn * 140, y: y - 120 }, { x: dirn > 0 ? innerWidth + 200 : -200, y: -180 }], curviness: 1.2 }, scale: .3, scaleX: .3 * dirn });
+      .set(f, { x, y, scaleY: s, scaleX: s * dirn, opacity: 1 })
+      .to(f, { duration: 1.7, ease: "power2.in", motionPath: { path: [{ x: x + dirn * 140, y: y - 120 }, { x: dirn > 0 ? innerWidth + 200 : -200, y: -180 }], curviness: 1.2 }, scaleY: .3, scaleX: .3 * dirn });
   });
 }
 // now and then a raven crosses the dawn sky, behind the content
@@ -179,7 +179,7 @@ function sendFlyer() {
   if (!motion) return;
   if (!paused && !document.hidden && scrollY < innerHeight * .8) {
     const f = makeFlyer(true, "ambient"), dirn = Math.random() < .5 ? 1 : -1, s = rnd(.3, .62), y0 = rnd(innerHeight * .08, innerHeight * .34);
-    G.fromTo(f, { x: dirn > 0 ? -120 : innerWidth + 120, y: y0, scale: s, scaleX: s * dirn, opacity: .5 + s * .5 },
+    G.fromTo(f, { x: dirn > 0 ? -120 : innerWidth + 120, y: y0, scaleY: s, scaleX: s * dirn, opacity: .5 + s * .5 },
       { x: dirn > 0 ? innerWidth + 120 : -120, y: y0 + rnd(-60, 30), duration: rnd(9, 13) / (s + .4), ease: "none", onComplete: () => killFlyer(f) });
   }
   G.delayedCall(rnd(7, 13), sendFlyer);
@@ -482,8 +482,8 @@ document.addEventListener("click", e => {
           G.to(f, { opacity: 0, duration: .2, onComplete: () => killFlyer(f) });
           if (++home === perch.length) G.delayedCall(.7, raise);
         } })
-        .set(f, { x: sx, y: sy, scale: s * .5, scaleX: s * .5 * face, opacity: 1 })
-        .to(f, { duration: 2.3, ease: "power2.inOut", motionPath: { path: [{ x: (sx + tx) / 2, y: Math.min(sy + h * .1, ty - h * .3) }, { x: tx - face * w * .1, y: ty - h * .08 }, { x: tx, y: ty }], curviness: 1.25 }, scale: s, scaleX: s * face });
+        .set(f, { x: sx, y: sy, scaleY: s * .5, scaleX: s * .5 * face, opacity: 1 })
+        .to(f, { duration: 2.3, ease: "power2.inOut", motionPath: { path: [{ x: (sx + tx) / 2, y: Math.min(sy + h * .1, ty - h * .3) }, { x: tx - face * w * .1, y: ty - h * .08 }, { x: tx, y: ty }], curviness: 1.25 }, scaleY: s, scaleX: s * face });
     });
   }, { threshold: .4 });
   io.observe(odin);
