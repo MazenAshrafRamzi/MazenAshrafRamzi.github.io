@@ -196,6 +196,7 @@ else {
     .to("#intro .eye", { scale: 7, opacity: 0, duration: .9, ease: "power3.in" }, 2.3)
     .to("#intro", { opacity: 0, duration: .5 }, 2.75);
   $("#intro").addEventListener("click", skip); addEventListener("keydown", skip, { once: true });
+  setTimeout(skip, 6000);   // safety net: if animation frames stall (throttled tab, slow device) the eye never blocks the page
 }
 
 /* =====================================================================================

@@ -43,7 +43,7 @@ window.PROJECTS = [
     ]
   },
   {
-    id: "ali", tint: "#f2b632", cats: ["play", "interactive"],
+    id: "ali", wide: true, tint: "#f2b632", cats: ["play", "interactive"],
     kicker: "Interactive pitch · 2026", title: "Perfect Human: cartoon Muhammad Ali",
     blurb: "A hands-on character creator. Drag, swipe and punch a mascot into shape until it turns into a cartoon Muhammad Ali you can spin, pose and inspect.",
     tools: ["Unity 6 URP", "WebGL", "Toon shading", "Procedural audio", "Input System"],
@@ -93,7 +93,7 @@ window.PROJECTS = [
     ]
   },
   {
-    id: "research", tint: "#c084fc", cats: ["xr"],
+    id: "research", wide: true, tint: "#c084fc", cats: ["xr"],
     kicker: "Research · PAAMS 2025", title: "Drawings to XR-ready 3D",
     blurb: "My bachelor project turns orthographic engineering drawings into 3D models with computer vision and automated Blender extrusion. It was published by Springer (CCIS).",
     tools: ["Python", "Computer vision", "Blender"],
@@ -104,7 +104,7 @@ window.PROJECTS = [
     ]
   },
   {
-    id: "ar", tint: "#38bdf8", cats: ["xr"],
+    id: "ar", wide: true, tint: "#38bdf8", cats: ["xr"],
     kicker: "Mobile AR", title: "AR Pirate Treasure Hunt",
     blurb: "A mobile AR game with real-world plane detection, an NPC pirate guide and touch-based puzzles.",
     tools: ["Unity", "AR Foundation", "Mixamo", "ElevenLabs"],

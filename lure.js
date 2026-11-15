@@ -1,5 +1,5 @@
 /* THE LURE: the calm Aurora portfolio admits it is the boring one.
-   After 6 s, or just as the Work section comes into view (whichever is first), the page glitches and a window rises.
+   After 20 s, or on reaching the Work section once you have been here at least 10 s, the page glitches and a window rises.
    Two gold raven eyes watch you through a slit in it: they follow your cursor or finger, blink, dart about when you
    stop, stare at "Yes" with wide pupils when you go near it, and narrow when you leave the window.
    "Yes" opens the dark, sends a raven across and takes you to the real portfolio (Blackwing).
@@ -19,7 +19,7 @@
   .lure { position: relative; width: min(440px, 100%); border-radius: 22px; padding: 22px 22px 20px; color: #e7f2ec; font: 15px/1.55 Geist, Arial, sans-serif;
     background: linear-gradient(180deg, rgba(20,30,46,.86), rgba(10,16,27,.92)); border: 1px solid rgba(190,235,220,.18);
     box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(165,148,255,.08) inset; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-    transform: translateY(40px) scale(.96); opacity: 0; transition: transform .7s cubic-bezier(.2,.9,.25,1.15), opacity .4s; }
+    transform: translateY(40px) scale(.96); opacity: 0; transition: transform .7s cubic-bezier(.16,1,.3,1), opacity .4s; }
   .lure-veil.on .lure { transform: none; opacity: 1; }
   .lure-kick { font: 500 11px "Geist Mono", ui-monospace, monospace; letter-spacing: .14em; text-transform: uppercase; color: #8e9ea6; display: flex; align-items: center; gap: 8px; }
   .lure-kick i { width: 7px; height: 7px; border-radius: 50%; background: #ff6b3d; box-shadow: 0 0 10px #ff6b3d; animation: lureRec 1.2s steps(2) infinite; }
@@ -184,10 +184,11 @@
   }
 
   // triggers: 6 seconds, or the Work section starting to appear, whichever comes first
-  const timer = setTimeout(show, 6000);
+  // Give the plain site a fair look first: 20 s, or reaching the work after at least 10 s on the page.
+  const MIN = 10000, timer = setTimeout(show, 20000);
   const work = document.getElementById("work");
   if (work && "IntersectionObserver" in window) {
-    const io = new IntersectionObserver(es => { if (es[0].isIntersecting && scrollY > 40) { io.disconnect(); clearTimeout(timer); show(); } }, { rootMargin: "0px 0px -8% 0px" });
+    const io = new IntersectionObserver(es => { if (es[0].isIntersecting && scrollY > 40) { io.disconnect(); clearTimeout(timer); setTimeout(show, Math.max(0, MIN - (performance.now() - t0))); } }, { rootMargin: "0px 0px -8% 0px" });
     io.observe(work);
   }
 })();
