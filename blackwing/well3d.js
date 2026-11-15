@@ -143,7 +143,14 @@ async function build() {
 
   /* ---------- sizing, interaction, loop ---------- */
   const fit = () => { const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); cam.aspect = w / h;
-    const k = Math.max(1, 2.1 / cam.aspect); cam.position.set(0, 2.2 * k ** .8, 2.45 * k); cam.lookAt(0, -.2, 0); cam.updateProjectionMatrix();
+    const k = Math.max(1, 2.1 / cam.aspect);
+    if (cam.aspect < 1.4) {
+      // narrow screens (phones): pulling back at the desktop angle made the view so shallow that the refracted eye slid
+      // down to the near rim. Look more steeply down into the well instead, so the eye sits in the middle of the water.
+      const d = 3.29 * k ** .82, el = 62 * Math.PI / 180;
+      cam.position.set(0, d * Math.sin(el), d * Math.cos(el)); cam.lookAt(0, -.22, 0);
+    } else { cam.position.set(0, 2.2 * k ** .8, 2.45 * k); cam.lookAt(0, -.2, 0); }
+    cam.updateProjectionMatrix();
     const pr = renderer.getPixelRatio(); rt.setSize(Math.round(w * pr * .75), Math.round(h * pr * .75)); water.material.uniforms.res.value.set(w * pr, h * pr); };
   host.appendChild(canvas); fit(); addEventListener("resize", fit);
   document.documentElement.classList.add("well3d-on");
