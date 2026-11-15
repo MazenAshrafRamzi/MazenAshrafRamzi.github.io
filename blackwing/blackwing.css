@@ -378,3 +378,8 @@ html.ravens-3d .odin .raven-perch, html.ravens-3d .odin .glint.rv { display: non
 .odin.bowed .odin-head { display: block; }
 .odin.bowed .odin-sil { clip-path: inset(62% 0 0 0); }
 .odin .perch-flyer { position: absolute; left: 0; top: 0; margin: -60px 0 0 -60px; z-index: 4; }
+
+/* ---------- v11: Odin's figure is always a true square (short or landscape screens used to squash it) ---------- */
+.odin { width: min(100%, 86vh, 86svh) !important; max-height: none !important; aspect-ratio: 1 / 1; margin-inline: auto !important; }
+@media (max-width: 900px) { .odin { width: min(100%, 560px, 86vh, 86svh) !important; } }
+html.in-modal .cursor { display: none !important; }

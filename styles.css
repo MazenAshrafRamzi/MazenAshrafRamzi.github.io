@@ -240,3 +240,4 @@ h2 em { letter-spacing: -.01em; color: #d9f5e6; }
 .note { font-size: 13px; color: var(--muted); margin-top: 6px; }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+html.in-modal .glow { display: none !important; }

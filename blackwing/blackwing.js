@@ -262,10 +262,11 @@ let lastFocus = null;
 function openModal(title, inner) {
   lastFocus = document.activeElement; mTitle.textContent = title; mBody.innerHTML = inner; modal.hidden = false;
   document.body.style.overflow = "hidden"; paused = true; $("#modal-fs").hidden = !mBody.querySelector("iframe");
+  document.documentElement.classList.add("in-modal");   // the gold cursor would freeze over the game (an iframe swallows pointer events): hide it until the modal closes
   if (motion) G.fromTo(modal, { opacity: 0 }, { opacity: 1, duration: .3 });
   $("#modal-close").focus();
 }
-function closeModal() { modal.hidden = true; mBody.innerHTML = ""; document.body.style.overflow = ""; paused = false; lastFocus && lastFocus.focus(); }
+function closeModal() { modal.hidden = true; mBody.innerHTML = ""; document.body.style.overflow = ""; paused = false; document.documentElement.classList.remove("in-modal"); lastFocus && lastFocus.focus(); }
 $("#modal-close").onclick = closeModal;
 $("#modal-fs").onclick = () => { const f = mBody.querySelector("iframe"); f && f.requestFullscreen && f.requestFullscreen(); };
 addEventListener("keydown", e => { if (e.key === "Escape" && !modal.hidden) closeModal(); });

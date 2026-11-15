@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
+<title>Perfect Human: cartoon Muhammad Ali</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --gold: #f2b632; --red: #d6281b; --cream: #fff3d6; --ink: #0e0905; }
+  html, body { margin: 0; height: 100%; background: var(--ink); overflow: hidden; }
+  #unity-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh; display: block; background: var(--ink); outline: none; }
+
+  /* ---------- fight night loading screen ---------- */
+  #loader { position: fixed; inset: 0; overflow: hidden; display: grid; place-items: center; padding: 20px; color: var(--cream);
+    font-family: Archivo, Arial, sans-serif; background: radial-gradient(120% 70% at 50% 110%, #3a1a06 0%, #160c05 45%, #070403 100%);
+    transition: opacity .6s .5s, visibility 0s 1.1s; }
+  #loader.done { opacity: 0; visibility: hidden; }
+  /* spotlight cone and dust */
+  .spot { position: absolute; left: 50%; top: -10%; width: min(900px, 160vw); height: 120%; transform: translateX(-50%); pointer-events: none;
+    background: conic-gradient(from 180deg at 50% 0%, transparent 160deg, rgba(255,226,160,.13) 172deg, rgba(255,236,190,.2) 180deg, rgba(255,226,160,.13) 188deg, transparent 200deg);
+    filter: blur(6px); animation: sway 7s ease-in-out infinite; transform-origin: 50% 0; }
+  @keyframes sway { 50% { transform: translateX(-50%) rotate(2.5deg); } }
+  .ropes { position: absolute; inset: auto -5% 0 -5%; height: 30%; pointer-events: none; background: linear-gradient(transparent, rgba(0,0,0,.65)); }
+  .ropes svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .flash { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #fff; box-shadow: 0 0 18px 8px rgba(255,255,255,.85); opacity: 0; pointer-events: none; }
+  .flash.pop { animation: pop .35s ease-out; }
+  @keyframes pop { 0% { opacity: 1; transform: scale(.4); } 100% { opacity: 0; transform: scale(2.2); } }
+
+  .poster { position: relative; width: min(560px, 100%); text-align: center; }
+  .kicker { display: inline-flex; gap: 10px; align-items: center; font: 700 12px Archivo, Arial; letter-spacing: .32em; text-transform: uppercase; color: var(--gold); }
+  .kicker::before, .kicker::after { content: ""; width: 34px; height: 2px; background: currentColor; opacity: .7; }
+  h1 { margin: 10px 0 2px; font: 400 clamp(54px, 15vw, 118px)/.86 Anton, Impact, sans-serif; letter-spacing: .01em; text-transform: uppercase;
+    color: var(--cream); text-shadow: 0 6px 0 var(--red), 0 12px 30px rgba(0,0,0,.6); transform: rotate(-2.2deg); }
+  h1 span { display: block; color: var(--gold); -webkit-text-stroke: 0; }
+  .vs { margin: 14px 0 22px; font: 700 13px Archivo, Arial; letter-spacing: .26em; text-transform: uppercase; color: #e8c992; }
+  .vs b { color: var(--red); margin: 0 .5em; }
+
+  /* gloves that trade jabs over the bar */
+  .gloves { position: relative; height: 70px; margin: 0 auto 8px; width: 220px; }
+  .glove { position: absolute; top: 8px; width: 62px; height: 54px; border-radius: 48% 52% 46% 54% / 56% 56% 44% 44%;
+    background: radial-gradient(circle at 34% 30%, #ff8a6a 0 10%, var(--red) 46%, #7a0e08 100%); box-shadow: inset -6px -8px 0 rgba(0,0,0,.25), 0 10px 24px rgba(214,40,27,.35); }
+  .glove::after { content: ""; position: absolute; bottom: -10px; left: 12px; width: 38px; height: 16px; border-radius: 4px; background: #f4ead2; box-shadow: inset 0 -4px 0 #d8c9a6; }
+  .glove.l { left: 0; animation: jabL 1.4s cubic-bezier(.3,1.7,.5,1) infinite; }
+  .glove.r { right: 0; transform: scaleX(-1); animation: jabR 1.4s cubic-bezier(.3,1.7,.5,1) .7s infinite; }
+  @keyframes jabL { 0%, 60%, 100% { transform: translateX(0) rotate(-6deg); } 25% { transform: translateX(62px) rotate(8deg); } }
+  @keyframes jabR { 0%, 60%, 100% { transform: scaleX(-1) translateX(0) rotate(-6deg); } 25% { transform: scaleX(-1) translateX(62px) rotate(8deg); } }
+  .impact { position: absolute; left: 50%; top: 22px; width: 30px; height: 30px; margin-left: -15px; opacity: 0; color: var(--gold);
+    font: 400 26px Anton, Impact; animation: hit 1.4s infinite; }
+  @keyframes hit { 0%, 18%, 40%, 68%, 90%, 100% { opacity: 0; transform: scale(.4); } 24%, 74% { opacity: 1; transform: scale(1.1) rotate(-8deg); } }
+
+  /* fighting-game power bar */
+  .bar { position: relative; height: 26px; border: 2px solid var(--cream); border-radius: 4px; padding: 3px; transform: skewX(-12deg); background: #1a0f07; box-shadow: 0 0 0 3px #000, 0 10px 30px rgba(0,0,0,.5); }
+  .fill { height: 100%; width: 0%; background: repeating-linear-gradient(90deg, var(--gold) 0 18px, #ffd36a 18px 20px, var(--gold) 20px 22px), var(--gold);
+    background-image: linear-gradient(180deg, #ffe08a, var(--gold) 55%, #c98a12), repeating-linear-gradient(90deg, transparent 0 22px, rgba(0,0,0,.35) 22px 24px);
+    background-blend-mode: multiply; transition: width .35s cubic-bezier(.2,.9,.3,1); box-shadow: 0 0 18px rgba(242,182,50,.55); }
+  .fill.hot { background-image: linear-gradient(180deg, #ff9d6a, var(--red) 55%, #8a1308), repeating-linear-gradient(90deg, transparent 0 22px, rgba(0,0,0,.35) 22px 24px); }
+  .row { display: flex; justify-content: space-between; align-items: baseline; margin-top: 10px; }
+  .status { font: 700 13px Archivo, Arial; letter-spacing: .12em; text-transform: uppercase; color: #e8c992; min-height: 1.2em; text-align: left; }
+  .pct { font: 400 40px/1 Anton, Impact; color: var(--cream); font-variant-numeric: tabular-nums; }
+  .tip { margin: 22px auto 0; max-width: 460px; min-height: 2.8em; font: 500 14px/1.45 Archivo, Arial; color: #cdb48a; transition: opacity .4s; }
+  .tip b { color: var(--gold); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; display: block; margin-bottom: 2px; }
+
+  /* the butterfly (float like one) */
+  .bfly { position: absolute; left: 0; top: 0; width: 34px; height: 26px; pointer-events: none; offset-path: path("M60,220 C180,60 420,40 520,170 S760,380 640,470 S260,520 120,380 S-20,300 60,220"); animation: fly 14s linear infinite; }
+  .bfly i { position: absolute; top: 2px; width: 16px; height: 20px; border-radius: 60% 40% 50% 50%; background: radial-gradient(circle at 40% 40%, #ffe08a, var(--gold) 50%, #b5730f); transform-origin: 100% 50%; animation: flap .22s ease-in-out infinite alternate; }
+  .bfly i:nth-child(2) { left: 17px; transform-origin: 0 50%; animation-name: flap2; }
+  @keyframes fly { to { offset-distance: 100%; } }
+  @keyframes flap { to { transform: scaleX(.25); } } @keyframes flap2 { to { transform: scaleX(.25); } }
+
+  /* DING DING / FIGHT! */
+  .bell { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+  .bell span { font: 400 clamp(70px, 22vw, 180px)/1 Anton, Impact; color: var(--gold); text-shadow: 0 8px 0 var(--red), 0 0 60px rgba(242,182,50,.6); opacity: 0; transform: scale(3) rotate(-12deg); }
+  #loader.fight .bell span { animation: stamp .55s cubic-bezier(.2,1.6,.4,1) forwards; }
+  @keyframes stamp { to { opacity: 1; transform: scale(1) rotate(-6deg); } }
+  #loader.fight .poster { animation: shake .35s 2; }
+  @keyframes shake { 25% { transform: translate(-6px, 3px); } 75% { transform: translate(5px, -3px); } }
+  #err { display: none; margin-top: 18px; color: #ff9b85; font: 500 14px Archivo, Arial; }
+  @media (max-height: 560px) { h1 { font-size: clamp(40px, 10vh, 80px); } .gloves { height: 54px; transform: scale(.8); } .tip { display: none; } .vs { margin: 8px 0 12px; } }
+  @media (prefers-reduced-motion: reduce) { .spot, .glove, .impact, .bfly, .bfly i { animation: none !important; } }
+</style>
+</head>
+<body>
+<canvas id="unity-canvas" tabindex="-1"></canvas>
+<div id="loader" role="status" aria-live="polite">
+  <div class="spot"></div>
+  <div class="ropes" aria-hidden="true"><svg viewBox="0 0 1000 300" preserveAspectRatio="none"><g fill="none" stroke-linecap="round"><path d="M0,70 Q500,110 1000,70" stroke="#d6281b" stroke-width="7" opacity=".75"/><path d="M0,150 Q500,190 1000,150" stroke="#fff3d6" stroke-width="7" opacity=".55"/><path d="M0,230 Q500,270 1000,230" stroke="#f2b632" stroke-width="7" opacity=".6"/></g><g fill="#2a1a0e"><rect x="0" y="40" width="26" height="260"/><rect x="974" y="40" width="26" height="260"/></g></svg></div>
+  <div class="bfly" aria-hidden="true"><i></i><i></i></div>
+  <div class="poster">
+    <div class="kicker">Tonight only</div>
+    <h1>Perfect<span>Human</span></h1>
+    <div class="vs">You <b>vs.</b> the champ</div>
+    <div class="gloves" aria-hidden="true"><div class="glove l"></div><div class="impact">✸</div><div class="glove r"></div></div>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+    <div class="row"><div class="status" id="status">Taping the hands…</div><div class="pct" id="pct">0%</div></div>
+    <p class="tip" id="tip"></p>
+    <p id="err"></p>
+  </div>
+  <div class="bell" aria-hidden="true"><span>FIGHT!</span></div>
+</div>
+<script src="../adaptive.js?v=1"></script>
+<script src="Build/WebGL.loader.js?v=1"></script>
+<script>
+  var canvas = document.querySelector("#unity-canvas"), loader = document.querySelector("#loader");
+  var fill = document.querySelector("#fill"), pct = document.querySelector("#pct"), statusEl = document.querySelector("#status"), tip = document.querySelector("#tip");
+  // rotating status lines and how-to-play tips while it loads
+  var lines = ["Taping the hands…", "Lacing the boots…", "Oiling the speed bag…", "Rehearsing the shuffle…", "Polishing the belt…"], li = 0;
+  var tips = [["Step 1", "Slide his height up until he stands tall."], ["Step 2", "Drag the brain card into his head."], ["Step 3", "Spin the face wheel to pick his look."],
+              ["Step 4", "Hit the punch pad to finish the transformation."], ["Ali mode", "Orbit, zoom and pose the champ: guard, jab, dodge, victory."], ["Tip", "Short on time? Watch Demo plays the whole 46-second piece."]], ti = 0;
+  function nextTip() { tip.style.opacity = 0; setTimeout(function () { tip.innerHTML = "<b>" + tips[ti][0] + "</b>" + tips[ti][1]; tip.style.opacity = 1; ti = (ti + 1) % tips.length; }, 380); }
+  nextTip(); var tipTimer = setInterval(nextTip, 3600);
+  var lineTimer = setInterval(function () { if (!statusEl.dataset.fixed) statusEl.textContent = lines[li = (li + 1) % lines.length]; }, 1700);
+  // camera flashes in the crowd
+  var flashTimer = setInterval(function () {
+    if (document.hidden) return; var f = document.createElement("i"); f.className = "flash pop";
+    f.style.left = (5 + Math.random() * 90) + "%"; f.style.top = (62 + Math.random() * 30) + "%"; loader.appendChild(f); setTimeout(function () { f.remove(); }, 400);
+  }, 520);
+
+  createUnityInstance(canvas, {
+    dataUrl: "Build/WebGL.data?v=1",
+    frameworkUrl: "Build/WebGL.framework.js?v=1",
+    codeUrl: "Build/WebGL.wasm?v=1",
+    streamingAssetsUrl: "StreamingAssets",
+    companyName: "Mazen Ashraf",
+    productName: "Perfect Human",
+    productVersion: "0.1.0",
+    devicePixelRatio: UnityAdaptive.start(),   // adaptive: starts light, follows the frame rate (../adaptive.js)
+  }, function (p) {
+    var v = Math.round(p * 100); fill.style.width = v + "%"; pct.textContent = v + "%";
+    if (p >= .9 && !statusEl.dataset.fixed) { statusEl.dataset.fixed = 1; statusEl.textContent = "Warming up in the corner…"; fill.classList.add("hot"); }
+  }).then(function (unity) {
+    UnityAdaptive.watch(unity);
+    fill.style.width = "100%"; pct.textContent = "100%"; statusEl.textContent = "Ding ding!";
+    clearInterval(tipTimer); clearInterval(lineTimer); clearInterval(flashTimer);
+    loader.classList.add("fight"); setTimeout(function () { loader.classList.add("done"); canvas.focus(); }, 650);
+  }).catch(function (e) {
+    clearInterval(lineTimer); statusEl.textContent = "Knocked out";
+    var el = document.querySelector("#err"); el.style.display = "block";
+    el.textContent = "This demo needs a browser with WebGL 2 (Chrome, Edge, Firefox or Safari 15+). " + e;
+  });
+</script>
+</body>
+</html>

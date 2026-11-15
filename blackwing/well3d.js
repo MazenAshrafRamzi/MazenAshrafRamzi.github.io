@@ -150,10 +150,17 @@ async function build() {
 
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), look = new THREE.Vector2(), lookTo = new THREE.Vector2();
   let lastRip = 0, pointerAt = 0;
-  const hit = e => { const r = canvas.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); ray.setFromCamera(ndc, cam); return ray.intersectObject(water)[0]; };
-  canvas.addEventListener("pointermove", e => { const h = hit(e); if (!h) return; pointerAt = performance.now(); lookTo.set(h.point.x, h.point.z);
-    if (pointerAt - lastRip > 240) { lastRip = pointerAt; ripple(h.point.x, h.point.z, .45); } });
-  canvas.addEventListener("pointerdown", e => { const h = hit(e); if (h) ripple(h.point.x, h.point.z, .9); });
+  // the eye follows a mouse, a pen or a finger: aim at the point on the water's plane under it (anywhere over the well),
+  // and ripple only where it is actually water. Touch uses its own passive listeners because pointermove stops once the page scrolls.
+  const surf = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), at = new THREE.Vector3();
+  const aim = (cx, cy, amp) => { const r = canvas.getBoundingClientRect(); ndc.set(((cx - r.left) / r.width) * 2 - 1, -((cy - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, cam); if (!ray.ray.intersectPlane(surf, at)) return; pointerAt = performance.now();
+    const len = Math.hypot(at.x, at.z), k = len > .95 ? .95 / len : 1; lookTo.set(at.x * k, at.z * k);
+    if (len < 1.02 && amp) { if (amp > .6 || pointerAt - lastRip > 240) { lastRip = pointerAt; ripple(at.x, at.z, amp); } } };
+  canvas.addEventListener("pointermove", e => { if (e.pointerType !== "touch") aim(e.clientX, e.clientY, .45); });
+  canvas.addEventListener("pointerdown", e => aim(e.clientX, e.clientY, .9));
+  canvas.addEventListener("touchstart", e => { const t = e.touches[0]; if (t) aim(t.clientX, t.clientY, .9); }, { passive: true });
+  canvas.addEventListener("touchmove", e => { const t = e.touches[0]; if (t) aim(t.clientX, t.clientY, .45); }, { passive: true });
 
   let visible = false;
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { rootMargin: "60px 0px" }).observe(host);
@@ -167,9 +174,9 @@ async function build() {
     if (!nextBlink) { nextBlink = t + 3; nextDrip = t + 1; }
     // the eye: rune rings turn against each other, the pupil follows you (or wanders), it blinks now and then
     ringOuter.rotation.z += dt * .07; ringInner.rotation.z -= dt * .11; iris.rotation.z += dt * .02;
-    if (now - pointerAt > 2500 && t > nextSac) { lookTo.set(rnd(-.5, .5), rnd(-.4, .4)); nextSac = t + rnd(1.2, 3); }
+    if (now - pointerAt > 3500 && t > nextSac) { lookTo.set(rnd(-.5, .5), rnd(-.4, .4)); nextSac = t + rnd(1.2, 3); }
     look.lerp(lookTo, 1 - Math.exp(-dt * 7));
-    pupil.position.set(look.x * .14, -look.y * .14, .002); iris.position.set(look.x * .06, -look.y * .06, .001);
+    pupil.position.set(look.x * .22, -look.y * .22, .002); iris.position.set(look.x * .1, -look.y * .1, .001);
     if (t > nextBlink) { blink = 1; nextBlink = t + rnd(4, 9); } blink = Math.max(0, blink - dt / .35);
     const open = 1 - Math.sin(blink * Math.PI) * .92, pulse = .8 + Math.sin(t * 1.3) * .2;
     vesica.scale.y = .5 * open; iris.scale.y = open; pupil.scale.setScalar(1 + Math.sin(t * .8) * .08);

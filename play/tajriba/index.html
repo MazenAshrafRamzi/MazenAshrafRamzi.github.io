@@ -53,27 +53,29 @@
         }
       })();
     </script>
-    <script src="Build/Tajriba WebGL.loader.js"></script>
+    <script src="../adaptive.js?v=1"></script>
+    <script src="Build/Tajriba WebGL.loader.js?v=2"></script>
     <script>
       var canvas = document.querySelector("#unity-canvas");
       function showError(message) { var e = document.querySelector("#error"); e.textContent = message; e.style.display = "block"; }
       createUnityInstance(canvas, {
         arguments: [],
-        dataUrl: "Build/Tajriba WebGL.data.unityweb",
-        frameworkUrl: "Build/Tajriba WebGL.framework.js.unityweb",
-        codeUrl: "Build/Tajriba WebGL.wasm.unityweb",
+        dataUrl: "Build/Tajriba WebGL.data.unityweb?v=2",
+        frameworkUrl: "Build/Tajriba WebGL.framework.js.unityweb?v=2",
+        codeUrl: "Build/Tajriba WebGL.wasm.unityweb?v=2",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "your creative team",
         productName: "Tajriba's Menu",
         productVersion: "1.0.0",
         autoSyncPersistentDataPath: true,   // keep the cart and saved items between visits
-        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+        devicePixelRatio: UnityAdaptive.start(),   // adaptive: starts light, follows the frame rate (../adaptive.js)
         showBanner: function (msg, type) { if (type === "error") showError(msg); },
       }, function (progress) {
         var p = Math.round(progress * 100);
         document.querySelector("#fill").style.width = p + "%";
         document.querySelector("#pct").textContent = p;
-      }).then(function () {
+      }).then(function (unity) {
+        UnityAdaptive.watch(unity);
         document.querySelector("#loader").classList.add("done");
         canvas.focus();
       }).catch(function (message) { showError(message); });

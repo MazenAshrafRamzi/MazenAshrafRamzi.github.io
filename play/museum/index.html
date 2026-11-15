@@ -31,13 +31,14 @@
   <p id="pct">Loading 0%</p>
   <p id="err" hidden></p>
 </div>
-<script src="Build/WebGL.loader.js"></script>
+    <script src="../adaptive.js?v=1"></script>
+<script src="Build/WebGL.loader.js?v=2"></script>
 <script>
   var canvas = document.querySelector("#unity-canvas");
   createUnityInstance(canvas, {
-    dataUrl: "Build/WebGL.data.unityweb",
-    frameworkUrl: "Build/WebGL.framework.js.unityweb",
-    codeUrl: "Build/WebGL.wasm.unityweb",
+    dataUrl: "Build/WebGL.data.unityweb?v=2",
+    frameworkUrl: "Build/WebGL.framework.js.unityweb?v=2",
+    codeUrl: "Build/WebGL.wasm.unityweb?v=2",
     streamingAssetsUrl: "StreamingAssets",
     // This loader always fetches workerUrl, but the build ships no worker (it is single-threaded).
     // An empty script stops the request for ".../undefined" (a 404 on every launch).
@@ -45,11 +46,12 @@
     companyName: "MuseumInspect",
     productName: "Voices of Stone",
     productVersion: "1.0.0",
-    devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+    devicePixelRatio: UnityAdaptive.start(),   // adaptive: starts light, follows the frame rate (../adaptive.js)
   }, function (p) {
     document.querySelector("#fill").style.width = (p * 100) + "%";
     document.querySelector("#pct").textContent = "Loading " + Math.round(p * 100) + "%";
-  }).then(function () {
+  }).then(function (unity) {
+        UnityAdaptive.watch(unity);
     document.querySelector("#loader").classList.add("done");
     canvas.focus();
   }).catch(function (e) {

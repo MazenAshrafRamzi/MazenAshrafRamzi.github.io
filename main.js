@@ -4,7 +4,7 @@ const PROJECTS = [
     kicker: "Interactive museum · 2026", title: "Voices of Stone",
     blurb: "An interactive museum of Ancient Egypt. Three statues tell their own stories in English or Egyptian Arabic, while the camera cuts to each detail they describe.",
     tools: ["Unity 6 URP", "WebGL", "Android", "Blender", "Photogrammetry", "Neural TTS"],
-    img: "media/museum.jpg", play: "play/museum/", size: "≈ 72 MB",
+    img: "media/museum.jpg", play: "play/museum/", size: "≈ 74 MB",
     points: [
       "Ra-Horakhty, Bastet and Anubis narrate their lore in the first person. Each has 6 story lines and 3 spoken Q&A answers, and the camera cuts to the part being described.",
       "Cleaned up a client photogrammetry scan from 2.9M to 459k triangles while keeping its UDIM textures intact, and derived normal and metal maps for the gilding.",
@@ -18,7 +18,7 @@ const PROJECTS = [
     kicker: "Interactive brand demo · 2026", title: "Ziggy Burger Lab",
     blurb: "Build your burger on a red ordering tablet, watch it stack in 3D, explode it into layers and send it to the kitchen. Made for the Bad Ziggy brand.",
     tools: ["Unity 6.4 URP", "WebGL", "Procedural meshes", "Input System", "TextMeshPro"],
-    img: "media/burger-lab.jpg", play: "play/burger-lab/", size: "≈ 20 MB",
+    img: "media/burger-lab.jpg", play: "play/burger-lab/", size: "≈ 28 MB",
     points: [
       "A tablet-style ordering UI flows into a 3D build view: pick a base, stack toppings, inspect, explode and order.",
       "Every food item is a procedural mesh with URP Lit materials per colour region. No custom shaders, so it stays SRP-Batcher friendly and WebGL-safe.",
@@ -42,11 +42,11 @@ const PROJECTS = [
     ]
   },
   {
-    id: "ali", tint: "#f2b632", cats: ["interactive", "film"],
+    id: "ali", tint: "#f2b632", cats: ["play", "interactive"],
     kicker: "Interactive pitch · 2026", title: "Perfect Human: cartoon Muhammad Ali",
     blurb: "A hands-on character creator. Drag, swipe and punch a mascot into shape until it turns into a cartoon Muhammad Ali you can spin, pose and inspect.",
-    tools: ["Unity 6 URP", "Toon shading", "Procedural audio", "Input System", "Android"],
-    img: "media/perfect-human.jpg", video: "media/perfect-human.mp4", portrait: true,
+    tools: ["Unity 6 URP", "WebGL", "Toon shading", "Procedural audio", "Input System"],
+    img: "media/perfect-human.jpg", play: "play/ali/", size: "≈ 28 MB", portrait: true,
     points: [
       "Four interactive steps: a height slider, dragging a brain card into the head, a face wheel and a punch pad. Each step plays its voice-over line and a gag.",
       "ALI MODE: orbit, zoom and pan; jump to face, gloves, shorts or boots; switch expressions; play guard, jab, dodge, victory and walk.",
@@ -247,6 +247,7 @@ function openModal(title, html) {
   $("#modal-fs").hidden = !mBody.querySelector("iframe");
   $("#modal-close").focus({ preventScroll: true });
   window.aurora && aurora.pause(true); // free the GPU for the WebGL demo / video
+  document.documentElement.classList.add("in-modal");   // hide the cursor glow while a game / video is open
   if (motion) {
     G.fromTo(modal, { opacity: wasOpen ? 1 : 0 }, { opacity: 1, duration: .3, ease: "power2.out" });
     G.fromTo(mBody.firstElementChild, { y: 60, scale: .94, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 1.1, ease: "elastic.out(1, .8)", clearProps: "transform" });
@@ -257,10 +258,11 @@ function closeModal() {
   const done = () => {
     modal.hidden = true; mBody.innerHTML = ""; document.body.style.overflow = "";
     window.aurora && aurora.pause(false);
+    document.documentElement.classList.remove("in-modal");
     if (returnFocus && document.contains(returnFocus)) returnFocus.focus({ preventScroll: true });
     returnFocus = null;
   };
-  motion ? G.to(modal, { opacity: 0, duration: .22, ease: "power2.in", onComplete: done, overwrite: true }) : done();
+  motion && !document.hidden ? G.to(modal, { opacity: 0, duration: .22, ease: "power2.in", onComplete: done, overwrite: true }) : done();
 }
 $("#modal-close").onclick = closeModal;
 addEventListener("keydown", e => {

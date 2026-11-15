@@ -136,11 +136,16 @@ if (renderer && heroHost) {
 
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -1.5), look = new THREE.Vector3(0, .6, 1.5);
   let lookLive = false, lastMove = 0;
-  addEventListener("pointermove", e => {
+  // the hero ravens watch a mouse, a pen or a finger (touch has its own listeners: pointermove stops once the page scrolls)
+  const watchAt = (x, y) => {
     if (!api.ok || stage !== "hero" || !vis.get(heroHost)) return;
-    const r = canvas.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    const r = canvas.getBoundingClientRect(); ndc.set(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, cam); if (ray.ray.intersectPlane(plane, look)) { lookLive = true; lastMove = performance.now(); }
-  }, { passive: true });
+  };
+  addEventListener("pointermove", e => { if (e.pointerType !== "touch") watchAt(e.clientX, e.clientY); }, { passive: true });
+  addEventListener("pointerdown", e => watchAt(e.clientX, e.clientY), { passive: true });
+  addEventListener("touchstart", e => { const t = e.touches[0]; if (t) watchAt(t.clientX, t.clientY); }, { passive: true });
+  addEventListener("touchmove", e => { const t = e.touches[0]; if (t) watchAt(t.clientX, t.clientY); }, { passive: true });
 
   let last = 0, prev = 0, away = false;
   function frame(now) {
