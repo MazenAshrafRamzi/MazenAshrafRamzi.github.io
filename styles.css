@@ -241,3 +241,20 @@ h2 em { letter-spacing: -.01em; color: #d9f5e6; }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 html.in-modal .glow { display: none !important; }
+/* six toolbox groups in a 3 x 2 grid (first column of each row has no left rule) */
+.skills { grid-template-columns: repeat(3, 1fr); }
+.skills > div:nth-child(3n + 1) { padding-left: 0; border-left: 0; }
+.skills > div:nth-child(n + 4) { border-top: 1px solid var(--line); }
+@media (max-width: 960px) { .skills { grid-template-columns: repeat(2, 1fr); }
+  .skills > div:nth-child(n) { padding-left: 24px; border-left: 1px solid var(--line); border-top: 0; }
+  .skills > div:nth-child(odd) { padding-left: 0; border-left: 0; } .skills > div:nth-child(n + 3) { border-top: 1px solid var(--line); } }
+@media (max-width: 560px) { .skills { grid-template-columns: 1fr; } .skills > div:nth-child(n) { padding-left: 0; border-left: 0; } .skills > div:nth-child(n + 2) { border-top: 1px solid var(--line); } }
+/* a send that failed - clear, with a way forward */
+.send-fail { margin-top: 4px; padding: 14px 16px; border: 1px solid rgba(255,107,61,.4); border-left: 3px solid var(--ember); border-radius: 14px; background: rgba(60,18,10,.55); color: #f1dcd4; font-size: 14px; line-height: 1.5; text-align: left; }
+.send-fail p { margin: 0 0 10px; } .send-fail .sf-title { font-weight: 600; color: #ffb39e; margin-bottom: 4px; }
+.sf-acts { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.sf-retry { cursor: pointer; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line2); background: var(--text); color: var(--ink); font: 600 13px var(--sans); }
+.sf-mail { color: var(--teal); font-size: 13px; }
+.shake { animation: formShake .42s cubic-bezier(.36,.07,.19,.97); }
+@keyframes formShake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+@media (prefers-reduced-motion: reduce) { .shake { animation: none; } }

@@ -386,3 +386,16 @@ html.in-modal .cursor { display: none !important; }
 
 /* ---------- v12: the well fades into the page at its edges (its mist and glow used to stop at a hard rectangle) ---------- */
 .well-3d canvas { -webkit-mask-image: radial-gradient(closest-side ellipse at 50% 50%, #000 64%, transparent 100%); mask-image: radial-gradient(closest-side ellipse at 50% 50%, #000 64%, transparent 100%); }
+/* v13: six forge troves in a 3 x 2 grid */
+.hoard { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 1000px) { .hoard { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .hoard { grid-template-columns: 1fr; } }
+/* v13: a send that failed - clear, with a way forward */
+.send-fail { margin-top: 4px; padding: 14px 16px; border: 1px solid #ff7a5c66; border-left: 3px solid #ff7a5c; border-radius: 6px; background: #2a0f0a99; color: #f3dcd4; font-size: 14px; line-height: 1.5; text-align: left; }
+.send-fail p { margin: 0 0 10px; } .send-fail .sf-title { font: 700 15px var(--display); letter-spacing: .04em; color: #ffb39e; margin-bottom: 4px; }
+.sf-acts { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.sf-retry { cursor: pointer; padding: 8px 16px; border-radius: 3px; border: 1px solid var(--gold); background: linear-gradient(180deg, #f2cf86, #c9a45c); color: #140c02; font: 600 13px var(--sans); }
+.sf-mail { color: var(--gold-hi); font-size: 13px; }
+.shake { animation: formShake .42s cubic-bezier(.36,.07,.19,.97); }
+@keyframes formShake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+@media (prefers-reduced-motion: reduce) { .shake { animation: none; } }

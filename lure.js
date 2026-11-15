@@ -32,12 +32,13 @@
   .lure h3 { margin: 0 0 6px; font: 400 clamp(26px, 6vw, 34px)/1.1 "Instrument Serif", "Times New Roman", "Noto Sans Runic", "Segoe UI Historic", serif; min-height: 2.2em; }
   .lure h3 .caret { display: inline-block; width: .5ch; border-bottom: 2px solid #ff6b3d; animation: lureRec 1s steps(2) infinite; }
   .lure p { margin: 0 0 18px; color: #a9b7bd; min-height: 3.1em; }
-  .lure-acts { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; position: relative; }
+  .lure-acts { display: flex; align-items: center; height: 54px; position: relative; flex-wrap: nowrap; }   /* fixed height: nothing reflows when "Stay blind" runs */
   .lure-yes { all: unset; cursor: pointer; padding: 12px 20px; border-radius: 999px; font: 600 14px Geist, Arial, sans-serif; color: #120b02;
     background: linear-gradient(180deg, #f2cf86, #c9a45c); box-shadow: 0 0 0 0 rgba(242,207,134,.5); animation: lurePulse 2.2s infinite; }
   .lure-yes:hover, .lure-yes:focus-visible { filter: brightness(1.08); outline: 2px solid #f2cf86; outline-offset: 3px; }
   @keyframes lurePulse { 70% { box-shadow: 0 0 0 14px rgba(242,207,134,0); } 100% { box-shadow: 0 0 0 0 rgba(242,207,134,0); } }
-  .lure-no { all: unset; cursor: pointer; font: 500 12px "Geist Mono", ui-monospace, monospace; color: #6f7f87; padding: 8px 4px; transition: transform .35s cubic-bezier(.3,1.6,.5,1), color .2s; }
+  .lure-no { all: unset; position: absolute; top: 50%; right: 0; max-width: 46%; cursor: pointer; text-align: center; line-height: 1.3; font: 500 12px/1.3 "Geist Mono", ui-monospace, monospace; color: #6f7f87; padding: 6px 4px;
+    transform: translateY(-50%); transition: left .38s cubic-bezier(.3,1.5,.5,1), transform .38s cubic-bezier(.3,1.5,.5,1), color .2s; }
   .lure-no:hover, .lure-no:focus-visible { color: #b9c6cc; }
   .lure-glitch { animation: lureGlitch .42s steps(2) 1; }
   @keyframes lureGlitch { 0% { filter: none; transform: none; } 20% { filter: hue-rotate(70deg) saturate(1.6); transform: translateX(-6px) skewX(4deg); }
@@ -145,12 +146,15 @@
     // "Stay blind" can never be pressed: it flees from the cursor, from a tap and from keyboard focus, and taunts you.
     const taunts = ["The ravens disagree.", "Huginn saw that.", "There is no going back.", "Muninn remembers you tried.", "Even Loki would say yes.", "The well is patient.", "Odin gave an eye. You won’t even give a click?"];
     let flees = 0, lastFlee = 0;
+    // it only ever moves inside its own lane, right of the Yes button: absolutely positioned, so its new text never reflows the window
+    const acts = veil.querySelector(".lure-acts");
     const flee = () => { const now = performance.now(); if (now - lastFlee < 180) return; lastFlee = now;
       no.textContent = taunts[flees++ % taunts.length];
-      const w = win.clientWidth, h = 70, bx = no.offsetLeft, maxX = w - no.offsetWidth - 44 - bx, minX = -bx + 4;
-      let dx = (Math.random() < .5 ? -1 : 1) * (60 + Math.random() * w * .3); dx = Math.max(minX, Math.min(maxX, dx));
-      const dy = -(10 + Math.random() * h);
-      no.style.transform = `translate(${dx.toFixed(0)}px, ${dy.toFixed(0)}px) rotate(${(Math.random() * 12 - 6).toFixed(1)}deg)`; };
+      const lane0 = yes.offsetLeft + yes.offsetWidth + 12, w = no.offsetWidth, lane1 = Math.max(lane0, acts.clientWidth - w);
+      const cur = no.offsetLeft, far = (cur - lane0) > (lane1 - cur) ? lane0 : lane1;   // jump towards the far end of the lane
+      const x = far + (Math.random() - .5) * Math.min(40, (lane1 - lane0) * .3);
+      no.style.right = "auto"; no.style.left = Math.max(lane0, Math.min(lane1, x)).toFixed(0) + "px";
+      no.style.transform = `translateY(calc(-50% + ${(Math.random() * 12 - 6).toFixed(0)}px)) rotate(${(Math.random() * 14 - 7).toFixed(1)}deg)`; };
     no.addEventListener("pointerenter", flee); no.addEventListener("pointerdown", e => { e.preventDefault(); flee(); });
     no.addEventListener("click", e => { e.preventDefault(); flee(); }); no.addEventListener("focus", () => { flee(); yes.focus({ preventScroll: true }); });
     const near = e => { const r = no.getBoundingClientRect(); if (Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) < Math.max(70, r.width * .6)) flee(); };

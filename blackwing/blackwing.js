@@ -514,27 +514,63 @@ function flyCourier([x0, y0]) {
     .to(courier, { duration: 1.5, ease: "power2.in", motionPath: { path: [{ x: x0 - 140, y: y0 - 160 }, { x: (x0 + innerWidth) / 2, y: y0 - 320 }, { x: innerWidth + 140, y: -120 }], curviness: 1.4 }, scale: .6 }, .2)
     .to(courier, { opacity: 0, duration: .3 }, "-=.3"));
 }
+// Sending, and what happens when it fails. The message is saved to the database before the email goes out, so a
+// failed email alone is still a success. Real failures (offline, timeout, server or validation errors) get one quiet
+// retry, then a clear panel: what went wrong in plain words, "Try again", and "Email it instead" with the message
+// already filled in. The typed message is never cleared on failure. Offline: it waits and sends itself when the
+// connection returns.
+const MAIL = "mazenashraframzy@gmail.com";
+const mailtoFor = d => `mailto:${MAIL}?subject=${encodeURIComponent("Portfolio: " + (d.name || ""))}&body=${encodeURIComponent((d.message || "") + "\n\n" + (d.name || "") + " <" + (d.email || "") + ">")}`;
+async function postRaven(data, signal) {
+  const r = await fetch(API + "/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), signal });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(j.error || ""); e.status = r.status; throw e; }
+  return j;
+}
+function whyFailed(err) {
+  if (!navigator.onLine) return ["You're offline.", "It will fly by itself as soon as your connection is back."];
+  if (err.name === "AbortError") return ["The server didn't answer in time.", ""];
+  if (err.status === 429) return ["Too many ravens in a short time.", "Please try again in a few minutes."];
+  if (err.status >= 400 && err.status < 500) return [err.message || "Something in the form isn't right.", ""];
+  if (err.status >= 500) return ["The server had a problem on its side.", ""];
+  return ["The connection dropped before the message arrived.", ""];
+}
+const retryable = err => err.name === "AbortError" || err.name === "TypeError" || err.status >= 500;
+let waitingForNet = false;
 $("#contact-form").addEventListener("submit", async e => {
   e.preventDefault();
   const f = e.target, st = $("#form-status"), btn = f.querySelector("button[type=submit]");
+  if (btn.disabled) return;
   const data = Object.fromEntries(new FormData(f));
-  if (!API) { location.href = `mailto:mazenashraframzy@gmail.com?subject=${encodeURIComponent("Portfolio: " + data.name)}&body=${encodeURIComponent(data.message + "\n\n" + data.email)}`; return; }
+  if (!API) { location.href = mailtoFor(data); return; }
+  const fail = err => {
+    const [what, hint] = whyFailed(err);
+    st.innerHTML = `<div class="send-fail" role="alert"><p class="sf-title">The raven couldn't fly.</p><p>${esc([what, hint].filter(Boolean).join(" "))} Your message is still here, nothing was lost.</p>
+      <div class="sf-acts"><button type="button" class="sf-retry">Try again</button><a class="sf-mail" href="${mailtoFor(data)}">Email it instead</a></div></div>`;
+    st.querySelector(".sf-retry").onclick = () => f.requestSubmit();
+    f.classList.remove("shake"); void f.offsetWidth; f.classList.add("shake");
+    const b = btn.getBoundingClientRect(); burst(b.left + b.width / 2, b.top, 6, .5);
+    if (!navigator.onLine && !waitingForNet) { waitingForNet = true; addEventListener("online", () => { waitingForNet = false; f.requestSubmit(); }, { once: true }); }
+  };
+  if (!navigator.onLine) return fail(new TypeError("offline"));
   btn.disabled = true; st.textContent = "The raven is taking flight…";
   const slow = setTimeout(() => st.textContent = "Still flying. The server is waking up, which can take up to a minute…", 4000);
-  const ctl = new AbortController(), cap = setTimeout(() => ctl.abort(), 60000);
   try {
-    const r = await fetch(API + "/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), signal: ctl.signal });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(j.error || `server error ${r.status}`);
-    const b = btn.getBoundingClientRect(); await flyCourier([b.left + b.width / 2, b.top + b.height / 2]);
+    let tries = 0;
+    for (;;) {
+      const ctl = new AbortController(), cap = setTimeout(() => ctl.abort(), 60000);
+      try { await postRaven(data, ctl.signal); clearTimeout(slow); break; }
+      catch (err) { if (++tries > 1 || !retryable(err) || !navigator.onLine) throw err; st.textContent = "A gust caught it. Trying once more…"; await new Promise(r => setTimeout(r, 1500)); }
+      finally { clearTimeout(cap); }
+    }
+    const b = btn.getBoundingClientRect(); st.textContent = "";
+    await Promise.race([flyCourier([b.left + b.width / 2, b.top + b.height / 2]), new Promise(r => setTimeout(r, 2500))]);   // never let the animation hold back the confirmation
     $("#sent-name").textContent = String(data.name).trim().split(/\s+/)[0]; $("#sent-email").textContent = data.email;
     st.textContent = ""; f.reset(); f.classList.add("is-sent");
     const sent = $("#form-sent"); sent.hidden = false; sent.focus({ preventScroll: true });
     if (motion) G.fromTo(sent.children, { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: .8, stagger: .08, ease: "back.out(1.6)" });
-  } catch (err) {
-    const why = err.name === "AbortError" ? "the server took too long" : err.name === "TypeError" ? "network error" : err.message;
-    st.innerHTML = `The raven couldn't fly (${esc(why)}). Please email <a href="mailto:mazenashraframzy@gmail.com">mazenashraframzy@gmail.com</a>.`;
-  } finally { clearTimeout(slow); clearTimeout(cap); btn.disabled = false; }
+  } catch (err) { fail(err); }
+  finally { clearTimeout(slow); btn.disabled = false; }
 });
 $("#send-another").addEventListener("click", () => { const f = $("#contact-form"); f.classList.remove("is-sent"); $("#form-sent").hidden = true; f.querySelector("input[name=name]").focus(); });
 window.blackwing.burst = burst;

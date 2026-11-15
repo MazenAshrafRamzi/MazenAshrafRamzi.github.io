@@ -394,31 +394,60 @@ if ("IntersectionObserver" in window)
 /* ---------- contact form → serverless API (falls back to email) ---------- */
 const API = (window.PORTFOLIO_API || "").replace(/\/$/, "");
 if (API) fetch(API + "/api/health").catch(() => {}); // wake the free instance early
+// Sending, and what happens when it fails (same rules as the Blackwing page): one quiet retry for network, timeout or
+// server errors, then a clear panel with the reason, "Try again" and "Email it instead" (message prefilled).
+// The message is never cleared on failure; offline, it sends itself when the connection returns.
+const MAIL = "mazenashraframzy@gmail.com";
+const mailtoFor = d => `mailto:${MAIL}?subject=${encodeURIComponent("Portfolio: " + (d.name || ""))}&body=${encodeURIComponent((d.message || "") + "\n\n" + (d.name || "") + " <" + (d.email || "") + ">")}`;
+async function postMessage(data, signal) {
+  const r = await fetch(API + "/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), signal });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(j.error || ""); e.status = r.status; throw e; }
+  return j;
+}
+function whyFailed(err) {
+  if (!navigator.onLine) return ["You're offline.", "It will send by itself as soon as your connection is back."];
+  if (err.name === "AbortError") return ["The server didn't answer in time.", ""];
+  if (err.status === 429) return ["Too many messages in a short time.", "Please try again in a few minutes."];
+  if (err.status >= 400 && err.status < 500) return [err.message || "Something in the form isn't right.", ""];
+  if (err.status >= 500) return ["The server had a problem on its side.", ""];
+  return ["The connection dropped before the message arrived.", ""];
+}
+const retryable = err => err.name === "AbortError" || err.name === "TypeError" || err.status >= 500;
+let waitingForNet = false;
 $("#contact-form").addEventListener("submit", async e => {
   e.preventDefault();
   const f = e.target, st = $("#form-status"), btn = f.querySelector("button");
+  if (btn.disabled) return;
   const data = Object.fromEntries(new FormData(f));
-  if (!API) {
-    location.href = `mailto:mazenashraframzy@gmail.com?subject=${encodeURIComponent("Portfolio: " + data.name)}&body=${encodeURIComponent(data.message + "\n\n" + data.email)}`;
-    return;
-  }
+  if (!API) { location.href = mailtoFor(data); return; }
+  const fail = err => {
+    const [what, hint] = whyFailed(err);
+    st.innerHTML = `<div class="send-fail" role="alert"><p class="sf-title">Your message wasn't sent.</p><p>${esc([what, hint].filter(Boolean).join(" "))} It's still in the form, nothing was lost.</p>
+      <div class="sf-acts"><button type="button" class="sf-retry">Try again</button><a class="sf-mail" href="${mailtoFor(data)}">Email it instead</a></div></div>`;
+    st.querySelector(".sf-retry").onclick = () => f.requestSubmit();
+    f.classList.remove("shake"); void f.offsetWidth; f.classList.add("shake");
+    if (!navigator.onLine && !waitingForNet) { waitingForNet = true; addEventListener("online", () => { waitingForNet = false; f.requestSubmit(); }, { once: true }); }
+  };
+  if (!navigator.onLine) return fail(new TypeError("offline"));
   btn.disabled = true; st.textContent = "Sending…";
   const slow = setTimeout(() => st.textContent = "Still sending. The server is waking up, which can take up to a minute…", 4000);
-  const ctl = new AbortController(), cap = setTimeout(() => ctl.abort(), 60000);
   try {
-    const r = await fetch(API + "/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), signal: ctl.signal });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(j.error || `server error ${r.status}`);
+    let tries = 0;
+    for (;;) {
+      const ctl = new AbortController(), cap = setTimeout(() => ctl.abort(), 60000);
+      try { await postMessage(data, ctl.signal); clearTimeout(slow); break; }
+      catch (err) { if (++tries > 1 || !retryable(err) || !navigator.onLine) throw err; st.textContent = "Connection hiccup. Trying once more…"; await new Promise(r => setTimeout(r, 1500)); }
+      finally { clearTimeout(cap); }
+    }
     // Swap the fields for a clear confirmation panel so the visitor can't miss it.
     const sent = $("#form-sent");
     $("#sent-name").textContent = String(data.name).trim().split(/\s+/)[0];
     $("#sent-email").textContent = data.email;
     st.textContent = ""; f.reset(); f.classList.add("is-sent"); sent.hidden = false; sent.focus({ preventScroll: true });
     if (motion) G.fromTo(sent, { y: 14, opacity: 0, scale: .96 }, { y: 0, opacity: 1, scale: 1, duration: 1, ease: "elastic.out(1, .6)" });
-  } catch (err) {
-    const why = err.name === "AbortError" ? "the server took too long" : err.name === "TypeError" ? "network error" : err.message;
-    st.innerHTML = `Couldn't send (${esc(why)}). Please email <a href="mailto:mazenashraframzy@gmail.com">mazenashraframzy@gmail.com</a>.`;
-  } finally { clearTimeout(slow); clearTimeout(cap); btn.disabled = false; }
+  } catch (err) { fail(err); }
+  finally { clearTimeout(slow); btn.disabled = false; }
 });
 $("#send-another").addEventListener("click", () => {
   const f = $("#contact-form");
