@@ -403,3 +403,6 @@ html.in-modal .cursor { display: none !important; }
 html { scrollbar-color: #c9a45c66 #050507; }
 input, textarea { caret-color: var(--gold-hi); }
 @media (max-width: 1000px) and (min-width: 681px) { .card:last-child:nth-child(odd) { grid-column: span 6; } }
+/* v15: a deed reached from a CV link is marked in gold for a moment */
+.card.summoned { border-color: var(--gold); box-shadow: 0 22px 60px -18px #c9a45caa; animation: summon 1.8s ease-out 2; }
+@keyframes summon { 0% { box-shadow: 0 22px 60px -18px #c9a45c00; } 40% { box-shadow: 0 26px 80px -12px #e3a83ccc; } 100% { box-shadow: 0 22px 60px -18px #c9a45caa; } }

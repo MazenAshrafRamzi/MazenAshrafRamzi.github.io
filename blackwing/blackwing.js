@@ -138,6 +138,8 @@ if (!reduce) requestAnimationFrame(loop);
    4. DAWN: the eye opens, the name is read from the runes, and the ravens are lit
    ===================================================================================== */
 let seen = false; try { seen = sessionStorage.getItem("bw-intro") === "1"; sessionStorage.setItem("bw-intro", "1"); } catch {}
+const WORK_ID = new URLSearchParams(location.search).get("work");   // CV project link: skip the long intro, go to that deed
+if (WORK_ID) seen = true;
 const html = document.documentElement;
 function heroIn() {
   html.classList.remove("intro-on");
@@ -285,6 +287,13 @@ function details(p) {
 const act = t => { const p = byId(t.dataset.play || t.dataset.watch || t.dataset.details || t.dataset.open); if (!p) return;
   if (t.dataset.play) return play(p); if (t.dataset.watch) return watch(p); if (t.dataset.details) return details(p); p.play ? play(p) : p.video ? watch(p) : details(p); };
 document.addEventListener("click", e => { const t = e.target.closest("[data-play],[data-watch],[data-details],[data-open]"); if (t) act(t); });
+// CV project link (?work=<id>): land on that deed - glide to its card, mark it in gold, open its details
+const summoned = WORK_ID && byId(WORK_ID);
+if (summoned) setTimeout(() => {
+  const card = $('.card[data-id="' + summoned.id + '"]');
+  card.scrollIntoView({ behavior: motion ? "smooth" : "auto", block: "center" }); card.classList.add("summoned");
+  setTimeout(() => details(summoned), motion ? 1300 : 0);
+}, 500);
 document.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches("[data-open]")) { e.preventDefault(); act(e.target); } });
 
 /* =====================================================================================

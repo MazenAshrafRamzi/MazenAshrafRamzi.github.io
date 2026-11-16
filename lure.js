@@ -6,8 +6,12 @@
    There is no way to stay: "Stay blind" flees from the cursor, a tap or the keyboard, and taunts you. Once per visit.
    Self-contained: styles are injected here. */
 (() => {
-  const KEY = "lure-seen", DEST = "blackwing/";
-  try { if (sessionStorage.getItem(KEY) || /[?&]stay\b/.test(location.search)) return; } catch {}
+  // CV project links: ?work=<project id> always shows the popup (quickly, naming the project) and leads straight to it.
+  const wid = new URLSearchParams(location.search).get("work");
+  const WORK = wid && typeof PROJECTS !== "undefined" ? PROJECTS.find(p => p.id === wid) : null;
+  const KEY = "lure-seen", DEST = WORK ? "blackwing/?work=" + encodeURIComponent(WORK.id) : "blackwing/";
+  if (/[?&]stay\b/.test(location.search)) return;
+  try { if (!WORK && sessionStorage.getItem(KEY)) return; } catch {}
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const t0 = performance.now();
   let shown = false;
@@ -87,7 +91,7 @@
     const veil = document.createElement("div"); veil.className = "lure-veil";
     veil.innerHTML = `
       <div class="lure" role="dialog" aria-modal="true" aria-labelledby="lure-t" aria-describedby="lure-d">
-        <div class="lure-kick"><i></i>Mímir’s well stirs · watched for ${secs} s</div>
+        <div class="lure-kick"><i></i>${WORK ? "Huginn returns with a deed" : "Mímir’s well stirs · watched for " + secs + " s"}</div>
         <div class="lure-slit"><div class="lure-eyes"></div></div>
         <h3 id="lure-t"><span class="txt"></span><span class="caret"></span></h3>
         <p id="lure-d"></p>
@@ -99,7 +103,10 @@
     const yes = veil.querySelector(".lure-yes"), no = veil.querySelector(".lure-no"), win = veil.querySelector(".lure");
 
     // typed lines
-    const L1 = "Would you trade an eye for the truth?", L2 = "This is only the surface, the tidy portfolio mortals are shown. Odin hung nine nights on Yggdrasil to win the runes and gave an eye to Mímir’s well for wisdom. You need only say yes.";
+    const name = WORK ? WORK.title.split(/[:(]/)[0].trim() : "";
+    const L1 = WORK ? "Would you trade an eye to see " + name + "?" : "Would you trade an eye for the truth?";
+    const L2 = WORK ? "Huginn found it beyond the surface, in the portfolio mortals are not shown. Odin gave an eye to Mímir’s well for wisdom. You need only say yes."
+      : "This is only the surface, the tidy portfolio mortals are shown. Odin hung nine nights on Yggdrasil to win the runes and gave an eye to Mímir’s well for wisdom. You need only say yes.";
     const FUTH = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ", rune = c => c === " " ? " " : FUTH[(c.charCodeAt(0) * 7) % FUTH.length];
     const txt = veil.querySelector(".txt"), sub = veil.querySelector("#lure-d");
     if (reduce) { txt.textContent = L1; sub.textContent = L2; }
@@ -185,6 +192,7 @@
 
   // triggers: 6 seconds, or the Work section starting to appear, whichever comes first
   // Give the plain site a fair look first: 20 s, or reaching the work after at least 10 s on the page.
+  if (WORK) { setTimeout(show, 1500); return; }   // a CV link: no waiting, the visitor came for this project
   const MIN = 10000, timer = setTimeout(show, 20000);
   const work = document.getElementById("work");
   if (work && "IntersectionObserver" in window) {
