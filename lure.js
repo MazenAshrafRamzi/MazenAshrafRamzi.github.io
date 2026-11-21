@@ -4,7 +4,7 @@
    stop, stare at "Yes" with wide pupils when you go near it, and narrow when you leave the window.
    "Yes" opens the dark, sends a raven across and takes you to the real portfolio (Blackwing).
    There is no way to stay: "Stay blind" flees from the cursor, a tap or the keyboard, and taunts you. It shows on every
-   visit; Aurora stays reachable only on purpose: a ?stay link (also offered inside Blackwing) or coming back from Blackwing.
+   visit. Aurora is only ever the bait: there is no way to stay on it and browse it, not even by coming back.
    Self-contained: styles are injected here. */
 (() => {
   // CV project links: ?work=<project id> always shows the popup (quickly, naming the project) and leads straight to it.
@@ -13,13 +13,8 @@
   // where "Yes" leads: the linked project, or the Blackwing section matching the Aurora section the visitor tried to open
   const SECTION_TO = { top: "", work: "#thought", experience: "#memory", skills: "#hoard", contact: "#send" };
   let DEST = WORK ? "blackwing/?work=" + encodeURIComponent(WORK.id) : "blackwing/";
-  const RET = "lure-returned", cameBack = () => { try { sessionStorage.setItem(RET, "1"); } catch {} };
-  // back from Blackwing via the browser's back/forward cache: clear the transition overlay and let them stay
-  addEventListener("pageshow", e => { if (e.persisted && document.querySelector(".lure-dark")) {
-    cameBack(); document.querySelectorAll(".lure-dark, .lure-gold, .lure-flyer, .lure-veil").forEach(n => n.remove()); } });
-  if (/[?&]stay\b/.test(location.search)) { cameBack(); return; }
-  let returned = false; try { returned = !!sessionStorage.getItem(RET); } catch {}
-  if (returned && !WORK) return;   // already went through once in this tab and chose to come back
+  // back from Blackwing via the browser's back/forward cache: start over, so the bait works again
+  addEventListener("pageshow", e => { if (e.persisted) location.reload(); });
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const t0 = performance.now();
   let shown = false;
@@ -107,7 +102,7 @@
       </div>`;
     const eyes = [eye("A"), eye("B")]; const row = veil.querySelector(".lure-eyes"); eyes.forEach(e => row.appendChild(e.svg));
     document.body.classList.add("lure-glitch"); setTimeout(() => document.body.classList.remove("lure-glitch"), 450);
-    document.body.appendChild(veil); requestAnimationFrame(() => requestAnimationFrame(() => veil.classList.add("on")));
+    document.body.appendChild(veil); document.documentElement.style.overflow = "hidden"; document.body.style.overflow = "hidden";   // the bait page behind can no longer be scrolled requestAnimationFrame(() => requestAnimationFrame(() => veil.classList.add("on")));
     const yes = veil.querySelector(".lure-yes"), no = veil.querySelector(".lure-no"), win = veil.querySelector(".lure");
 
     // typed lines
@@ -174,13 +169,14 @@
     no.addEventListener("click", e => { e.preventDefault(); flee(); }); no.addEventListener("focus", () => { flee(); yes.focus({ preventScroll: true }); });
     const near = e => { const r = no.getBoundingClientRect(); if (Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) < Math.max(70, r.width * .6)) flee(); };
     addEventListener("pointermove", near, { passive: true });
-    const key = e => { if (e.key === "Escape") { e.preventDefault(); flee(); } }; addEventListener("keydown", key);
+    const key = e => { if (e.key === "Escape") { e.preventDefault(); flee(); }
+      if (e.key === "Tab") { e.preventDefault(); yes.focus({ preventScroll: true }); } };   // focus stays in the window: nothing behind it is reachable addEventListener("keydown", key);
 
     // "Yes": darkness opens from the eyes, a raven crosses, then the real portfolio
     yes.addEventListener("click", () => {
       cleanup();
       const r = veil.querySelector(".lure-slit").getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-      if (reduce) { cameBack(); location.href = DEST; return; }
+      if (reduce) { location.href = DEST; return; }
       eyes.forEach(e => { e.iris.setAttribute("transform", "translate(0,0)"); e.pupil.setAttribute("r", "3"); e.lid.setAttribute("transform", "scale(1,1)"); });
       const dark = document.createElement("div"); dark.className = "lure-dark"; dark.style.setProperty("--x", cx + "px"); dark.style.setProperty("--y", cy + "px");
       document.body.appendChild(dark); requestAnimationFrame(() => requestAnimationFrame(() => dark.classList.add("on")));
@@ -194,7 +190,7 @@
         f.animate([{ transform: `translate(-260px, ${y0 + 120}px) scale(${s * .6})` }, { transform: `translate(${cx - 110}px, ${cy - 110}px) scale(${s})`, offset: .55 },
           { transform: `translate(${innerWidth + 60}px, ${y0 - 120}px) scale(${s * .7})` }], { duration: 1100, easing: "cubic-bezier(.4,0,.6,1)", fill: "forwards" });
       }, 700);
-      setTimeout(() => { cameBack(); location.href = DEST; }, 1750);   // if they come back to Aurora later, it lets them stay
+      setTimeout(() => { location.href = DEST; }, 1750);
     });
   }
 
