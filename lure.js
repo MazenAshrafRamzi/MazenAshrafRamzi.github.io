@@ -1,17 +1,25 @@
 /* THE LURE: the calm Aurora portfolio admits it is the boring one.
-   After 20 s, or on reaching the Work section once you have been here at least 10 s, the page glitches and a window rises.
+   When the visitor reaches the start of Selected work, or tries any section link, the page glitches and a window rises.
    Two gold raven eyes watch you through a slit in it: they follow your cursor or finger, blink, dart about when you
    stop, stare at "Yes" with wide pupils when you go near it, and narrow when you leave the window.
    "Yes" opens the dark, sends a raven across and takes you to the real portfolio (Blackwing).
-   There is no way to stay: "Stay blind" flees from the cursor, a tap or the keyboard, and taunts you. Once per visit.
+   There is no way to stay: "Stay blind" flees from the cursor, a tap or the keyboard, and taunts you. It shows on every
+   visit; Aurora stays reachable only on purpose: a ?stay link (also offered inside Blackwing) or coming back from Blackwing.
    Self-contained: styles are injected here. */
 (() => {
   // CV project links: ?work=<project id> always shows the popup (quickly, naming the project) and leads straight to it.
   const wid = new URLSearchParams(location.search).get("work");
   const WORK = wid && typeof PROJECTS !== "undefined" ? PROJECTS.find(p => p.id === wid) : null;
-  const KEY = "lure-seen", DEST = WORK ? "blackwing/?work=" + encodeURIComponent(WORK.id) : "blackwing/";
-  if (/[?&]stay\b/.test(location.search)) return;
-  try { if (!WORK && sessionStorage.getItem(KEY)) return; } catch {}
+  // where "Yes" leads: the linked project, or the Blackwing section matching the Aurora section the visitor tried to open
+  const SECTION_TO = { top: "", work: "#thought", experience: "#memory", skills: "#hoard", contact: "#send" };
+  let DEST = WORK ? "blackwing/?work=" + encodeURIComponent(WORK.id) : "blackwing/";
+  const RET = "lure-returned", cameBack = () => { try { sessionStorage.setItem(RET, "1"); } catch {} };
+  // back from Blackwing via the browser's back/forward cache: clear the transition overlay and let them stay
+  addEventListener("pageshow", e => { if (e.persisted && document.querySelector(".lure-dark")) {
+    cameBack(); document.querySelectorAll(".lure-dark, .lure-gold, .lure-flyer, .lure-veil").forEach(n => n.remove()); } });
+  if (/[?&]stay\b/.test(location.search)) { cameBack(); return; }
+  let returned = false; try { returned = !!sessionStorage.getItem(RET); } catch {}
+  if (returned && !WORK) return;   // already went through once in this tab and chose to come back
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const t0 = performance.now();
   let shown = false;
@@ -80,10 +88,10 @@
     return { svg, iris: svg.querySelector(".iris"), pupil: svg.querySelector(".pupil"), lid: svg.querySelector(".lid") };
   }
 
-  function show() {
+  function show(sec) {
     if (shown) return; shown = true;
-    try { sessionStorage.setItem(KEY, "1"); } catch {}
-    if (document.querySelector(".modal:not([hidden])")) { shown = false; setTimeout(show, 4000); return; }   // not while a build is open
+    if (!WORK && sec in SECTION_TO) DEST = "blackwing/" + SECTION_TO[sec];
+    if (document.querySelector(".modal:not([hidden])")) { shown = false; setTimeout(() => show(sec), 4000); return; }   // not while a build is open
     const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
     // the runes need a font that has them (not every phone does): a tiny subset of Noto Sans Runic, just these 24 letters
     const fl = document.createElement("link"); fl.rel = "stylesheet"; fl.href = "https://fonts.googleapis.com/css2?family=Noto+Sans+Runic&display=swap&text=" + encodeURIComponent("ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ"); document.head.appendChild(fl);
@@ -172,7 +180,7 @@
     yes.addEventListener("click", () => {
       cleanup();
       const r = veil.querySelector(".lure-slit").getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-      if (reduce) { location.href = DEST; return; }
+      if (reduce) { cameBack(); location.href = DEST; return; }
       eyes.forEach(e => { e.iris.setAttribute("transform", "translate(0,0)"); e.pupil.setAttribute("r", "3"); e.lid.setAttribute("transform", "scale(1,1)"); });
       const dark = document.createElement("div"); dark.className = "lure-dark"; dark.style.setProperty("--x", cx + "px"); dark.style.setProperty("--y", cy + "px");
       document.body.appendChild(dark); requestAnimationFrame(() => requestAnimationFrame(() => dark.classList.add("on")));
@@ -186,17 +194,23 @@
         f.animate([{ transform: `translate(-260px, ${y0 + 120}px) scale(${s * .6})` }, { transform: `translate(${cx - 110}px, ${cy - 110}px) scale(${s})`, offset: .55 },
           { transform: `translate(${innerWidth + 60}px, ${y0 - 120}px) scale(${s * .7})` }], { duration: 1100, easing: "cubic-bezier(.4,0,.6,1)", fill: "forwards" });
       }, 700);
-      setTimeout(() => { location.href = DEST; }, 1750);
+      setTimeout(() => { cameBack(); location.href = DEST; }, 1750);   // if they come back to Aurora later, it lets them stay
     });
   }
 
-  // triggers: 6 seconds, or the Work section starting to appear, whichever comes first
-  // Give the plain site a fair look first: 20 s, or reaching the work after at least 10 s on the page.
-  if (WORK) { setTimeout(show, 1500); return; }   // a CV link: no waiting, the visitor came for this project
-  const MIN = 10000, timer = setTimeout(show, 20000);
+  // Triggers. A CV project link: right away. Otherwise only on reaching the start of Selected work, or on trying any
+  // section link: a click opens the popup at once, and a section link opened in a new tab arrives with its #hash.
+  if (WORK) { setTimeout(show, 1500); return; }
+  const hashSec = location.hash.slice(1);
+  if (hashSec in SECTION_TO) { setTimeout(() => show(hashSec), 700); return; }
+  document.addEventListener("click", ev => {
+    const a = ev.target.closest('a[href^="#"]');
+    if (!a || ev.button !== 0 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return;   // modified clicks open a new tab, handled above
+    ev.preventDefault(); ev.stopImmediatePropagation(); show(a.getAttribute("href").slice(1) || "top");
+  }, true);
   const work = document.getElementById("work");
   if (work && "IntersectionObserver" in window) {
-    const io = new IntersectionObserver(es => { if (es[0].isIntersecting && scrollY > 40) { io.disconnect(); clearTimeout(timer); setTimeout(show, Math.max(0, MIN - (performance.now() - t0))); } }, { rootMargin: "0px 0px -8% 0px" });
+    const io = new IntersectionObserver(es => { if (es[0].isIntersecting) { io.disconnect(); show("work"); } }, { rootMargin: "0px 0px -10% 0px" });
     io.observe(work);
   }
 })();

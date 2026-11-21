@@ -137,7 +137,7 @@ if (!reduce) requestAnimationFrame(loop);
 /* =====================================================================================
    4. DAWN: the eye opens, the name is read from the runes, and the ravens are lit
    ===================================================================================== */
-let seen = false; try { seen = sessionStorage.getItem("bw-intro") === "1"; sessionStorage.setItem("bw-intro", "1"); } catch {}
+let seen = false;   // the eye opens on every visit (once-per-tab made refreshes look frozen); CV links skip it below
 const WORK_ID = new URLSearchParams(location.search).get("work");   // CV project link: skip the long intro, go to that deed
 if (WORK_ID) seen = true;
 const html = document.documentElement;
