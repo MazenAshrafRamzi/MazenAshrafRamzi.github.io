@@ -19,12 +19,14 @@
   addEventListener("pageshow", e => { if (e.persisted) location.reload(); });
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const t0 = performance.now();
-  let shown = false;
+  let shown = false, stuckSecs = "";
+  for (const s of ["localStorage", "sessionStorage"]) try { stuckSecs = stuckSecs || window[s].getItem("lure-shown") || ""; } catch {}
 
   const css = `
   .lure-veil { position: fixed; inset: 0; z-index: 90; display: grid; place-items: end center; padding: 16px 16px max(16px, 6vh);
     background: radial-gradient(120% 90% at 50% 100%, rgba(3,5,10,.55), rgba(3,5,10,.82)); opacity: 0; transition: opacity .45s; }
   .lure-veil.on { opacity: 1; }
+  .lure-veil.still, .lure-veil.still .lure { transition: none; }
   .lure { position: relative; width: min(440px, 100%); border-radius: 22px; padding: 22px 22px 20px; color: #e7f2ec; font: 15px/1.55 Geist, Arial, sans-serif;
     background: linear-gradient(180deg, rgba(20,30,46,.86), rgba(10,16,27,.92)); border: 1px solid rgba(190,235,220,.18);
     box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(165,148,255,.08) inset; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
@@ -85,15 +87,18 @@
     return { svg, iris: svg.querySelector(".iris"), pupil: svg.querySelector(".pupil"), lid: svg.querySelector(".lid") };
   }
 
-  function show(sec) {
+  // still = it already appeared once on this browser: it is simply there, open, with no glitch, no entrance and no typing,
+  // so a reload or a new tab feels like being stuck in front of it
+  function show(sec, still) {
     if (shown) return; shown = true;
-    try { sessionStorage.setItem("lure-shown", "1"); } catch {}   // from now on a refresh shows it again at once
     // a build somehow open: close it and stop the game, the popup always wins
     document.querySelectorAll(".modal:not([hidden])").forEach(m => { m.querySelectorAll("iframe").forEach(f => f.remove()); m.hidden = true; });
     const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
     // the runes need a font that has them (not every phone does): a tiny subset of Noto Sans Runic, just these 24 letters
     const fl = document.createElement("link"); fl.rel = "stylesheet"; fl.href = "https://fonts.googleapis.com/css2?family=Noto+Sans+Runic&display=swap&text=" + encodeURIComponent("ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ"); document.head.appendChild(fl);
-    const secs = Math.max(1, Math.round((performance.now() - t0) / 1000));
+    const secs = (still && +stuckSecs) || Math.max(1, Math.round((performance.now() - t0) / 1000));
+    // remembered on this browser (every tab, every reload); sessionStorage as well in case localStorage is blocked
+    for (const s of ["localStorage", "sessionStorage"]) try { window[s].setItem("lure-shown", String(secs)); } catch {}
     const veil = document.createElement("div"); veil.className = "lure-veil";
     veil.innerHTML = `
       <div class="lure" role="dialog" aria-modal="true" aria-labelledby="lure-t" aria-describedby="lure-d">
@@ -104,9 +109,10 @@
         <div class="lure-acts"><button class="lure-yes" type="button">Drink from the well</button><button class="lure-no" type="button" aria-label="Stay blind (it will not let you)">Stay blind</button></div>
       </div>`;
     const eyes = [eye("A"), eye("B")]; const row = veil.querySelector(".lure-eyes"); eyes.forEach(e => row.appendChild(e.svg));
-    document.body.classList.add("lure-glitch"); setTimeout(() => document.body.classList.remove("lure-glitch"), 450);
+    if (!still) { document.body.classList.add("lure-glitch"); setTimeout(() => document.body.classList.remove("lure-glitch"), 450); }
     document.body.appendChild(veil); document.documentElement.style.overflow = "hidden"; document.body.style.overflow = "hidden";   // the bait page behind can no longer be scrolled
-    requestAnimationFrame(() => requestAnimationFrame(() => veil.classList.add("on")));
+    if (still) veil.classList.add("still", "on");
+    else requestAnimationFrame(() => requestAnimationFrame(() => veil.classList.add("on")));
     const yes = veil.querySelector(".lure-yes"), no = veil.querySelector(".lure-no"), win = veil.querySelector(".lure");
 
     // typed lines
@@ -116,11 +122,11 @@
       : "This is only the surface, the tidy portfolio mortals are shown. Odin hung nine nights on Yggdrasil to win the runes and gave an eye to Mímir’s well for wisdom. You need only say yes.";
     const FUTH = "ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ", rune = c => c === " " ? " " : FUTH[(c.charCodeAt(0) * 7) % FUTH.length];
     const txt = veil.querySelector(".txt"), sub = veil.querySelector("#lure-d");
-    if (reduce) { txt.textContent = L1; sub.textContent = L2; }
+    if (reduce || still) { txt.textContent = L1; sub.textContent = L2; }
     else { let i = 0; txt.textContent = [...L1].map(rune).join("");   // the question arrives in runes, then is read letter by letter
       const type = () => { i++; txt.textContent = L1.slice(0, i) + [...L1.slice(i)].map(rune).join(""); if (i < L1.length) setTimeout(type, 38 + Math.random() * 46); else setTimeout(() => typeSub(0), 250); };
       const typeSub = j => { sub.textContent = L2.slice(0, j); if (j < L2.length) setTimeout(() => typeSub(j + 2), 16); }; setTimeout(type, 500); }
-    setTimeout(() => yes.focus({ preventScroll: true }), 700);
+    setTimeout(() => yes.focus({ preventScroll: true }), still ? 0 : 700);
 
     // the eyes: follow pointer/finger, lock on Yes, wander when idle, blink, narrow when you leave
     let px = innerWidth / 2, py = innerHeight * .2, lastMove = performance.now(), inside = true, nearYes = 0, raf = 0, nextBlink = performance.now() + 1500, blinkT = -1, wander = null, nextWander = 0;
@@ -203,10 +209,9 @@
   // the action never happens, and once the popup has appeared in a tab, every refresh brings it straight back.
   // Otherwise the bait gets a short moment: 1.5 s after Selected work rises into view, at once if they scroll on into
   // the first row of projects, or after 14 s if they stay at the top.
-  const SEEN = "lure-shown";
-  let again = false; try { again = !!sessionStorage.getItem(SEEN); } catch {}
+  // Seen once on this browser (any reload, any new tab, any later visit): it is already open, standing still.
+  if (stuckSecs) { show("top", true); return; }
   if (WORK) { setTimeout(show, 1500); return; }
-  if (again) { setTimeout(show, 400); return; }   // refresh after the popup appeared: no second look at the bait
   const hashSec = location.hash.slice(1);
   if (hashSec in SECTION_TO) { setTimeout(() => show(hashSec), 700); return; }
   // Any click, tap, middle-click or keyboard activation on something interactive (links, buttons, cards, chips, Play,
