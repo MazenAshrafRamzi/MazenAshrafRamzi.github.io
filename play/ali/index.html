@@ -99,6 +99,15 @@
   </div>
   <div class="bell" aria-hidden="true"><span>FIGHT!</span></div>
 </div>
+<script>
+  // Unity's web audio plays a clip whose rate differs from the browser's output rate at the wrong speed (it re-applies
+  // the rate ratio after the browser already resampled). Every clip in this build is 48 kHz, so pin the output to 48 kHz.
+  (function () {
+    var A = window.AudioContext || window.webkitAudioContext; if (!A) return;
+    function Ctx(o) { try { return new A(Object.assign({ sampleRate: 48000 }, o || {})); } catch (e) { return new A(o); } }
+    Ctx.prototype = A.prototype; window.AudioContext = Ctx; if (window.webkitAudioContext) window.webkitAudioContext = Ctx;
+  })();
+</script>
 <script src="../adaptive.js?v=2"></script>
 <script src="Build/WebGL.loader.js?v=2"></script>
 <script>

@@ -188,8 +188,13 @@ function sendFlyer() {
 }
 if (!motion || seen) { $("#intro").remove(); requestAnimationFrame(heroIn); }
 else {
+  // The eye always plays out: clicks and keys no longer skip it. A #section link waits at the top behind the eye and
+  // glides to its section only once the eye has opened (the browser used to jump there under the intro).
+  const landing = location.hash.length > 1 ? document.querySelector(location.hash) : null;
+  if (landing) { history.scrollRestoration = "manual"; scrollTo(0, 0); addEventListener("load", () => scrollTo(0, 0), { once: true }); }
   const skip = () => { if (introTl.progress() < 1) introTl.progress(1); };
-  const introTl = G.timeline({ onComplete: () => { $("#intro")?.remove(); removeEventListener("keydown", skip); heroIn(); } });
+  const introTl = G.timeline({ onComplete: () => { $("#intro")?.remove(); heroIn();
+    if (landing) setTimeout(() => landing.scrollIntoView({ behavior: "smooth", block: "start" }), 700); } });
   introTl.set(".eye .pupil", { scale: 1.7, transformOrigin: "50% 50%" })
     .to(".lid-top", { scaleY: 0, transformOrigin: "50% 0%", duration: 1, ease: "power3.inOut" }, .25)
     .to(".lid-bot", { scaleY: 0, transformOrigin: "50% 100%", duration: 1, ease: "power3.inOut" }, .25)
@@ -197,7 +202,6 @@ else {
     .to(".intro-line span", { opacity: 1, duration: .5, stagger: .35 }, .6)
     .to("#intro .eye", { scale: 7, opacity: 0, duration: .9, ease: "power3.in" }, 2.3)
     .to("#intro", { opacity: 0, duration: .5 }, 2.75);
-  $("#intro").addEventListener("click", skip); addEventListener("keydown", skip, { once: true });
   setTimeout(skip, 6000);   // safety net: if animation frames stall (throttled tab, slow device) the eye never blocks the page
 }
 
