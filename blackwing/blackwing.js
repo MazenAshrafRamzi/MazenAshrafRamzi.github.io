@@ -240,18 +240,20 @@ $("#grid").innerHTML = PROJECTS.map(cardHTML).join("");
 const byId = id => PROJECTS.find(p => p.id === id);
 const cards = $$(".card");
 
-let filtering = false;
+// A click always wins: it interrupts the running fade instead of being dropped (a lock here ignored clicks for ~1.3 s).
+let filterFx = [];
 $$(".chip").forEach(ch => ch.addEventListener("click", () => {
-  if (filtering || ch.classList.contains("on")) return;
+  if (ch.classList.contains("on")) return;
   $$(".chip").forEach(c => { c.classList.toggle("on", c === ch); c.setAttribute("aria-pressed", c === ch); });
   const f = ch.dataset.f, keep = c => f === "all" || c.dataset.cats.split(" ").includes(f);
-  if (!motion) { cards.forEach(c => c.classList.toggle("hide", !keep(c))); return; }
-  filtering = true;
-  G.to(cards.filter(c => !c.classList.contains("hide")), { opacity: 0, y: 16, duration: .2, stagger: .015, ease: "power2.in", onComplete() {
-    cards.forEach(c => c.classList.toggle("hide", !keep(c)));
-    G.fromTo(cards.filter(c => !c.classList.contains("hide")), { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: .7, stagger: .05, ease: "power3.out", clearProps: "transform", onComplete: () => { filtering = false; ST && ST.refresh(); } });
+  const apply = () => cards.forEach(c => c.classList.toggle("hide", !keep(c)));
+  if (!motion) { apply(); ST && ST.refresh(); return; }
+  filterFx.forEach(t => t.kill()); G.killTweensOf(cards);   // also stops a pending scroll-reveal from fighting the filter's fade
+  filterFx = [G.to(cards.filter(c => !c.classList.contains("hide")), { opacity: 0, y: 16, duration: .16, stagger: .01, ease: "power2.in", onComplete() {
+    apply();
+    filterFx.push(G.fromTo(cards.filter(c => !c.classList.contains("hide")), { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: .6, stagger: .04, ease: "power3.out", clearProps: "transform", onComplete: () => ST && ST.refresh() }));
     const r = ch.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, 5, .6);
-  } });
+  } })];
 }));
 if (fine) cards.forEach(card => {
   const v = card.querySelector("video.preview"); if (!v) return;

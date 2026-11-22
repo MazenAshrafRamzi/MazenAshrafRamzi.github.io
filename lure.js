@@ -102,7 +102,8 @@
       </div>`;
     const eyes = [eye("A"), eye("B")]; const row = veil.querySelector(".lure-eyes"); eyes.forEach(e => row.appendChild(e.svg));
     document.body.classList.add("lure-glitch"); setTimeout(() => document.body.classList.remove("lure-glitch"), 450);
-    document.body.appendChild(veil); document.documentElement.style.overflow = "hidden"; document.body.style.overflow = "hidden";   // the bait page behind can no longer be scrolled requestAnimationFrame(() => requestAnimationFrame(() => veil.classList.add("on")));
+    document.body.appendChild(veil); document.documentElement.style.overflow = "hidden"; document.body.style.overflow = "hidden";   // the bait page behind can no longer be scrolled
+    requestAnimationFrame(() => requestAnimationFrame(() => veil.classList.add("on")));
     const yes = veil.querySelector(".lure-yes"), no = veil.querySelector(".lure-no"), win = veil.querySelector(".lure");
 
     // typed lines
@@ -170,7 +171,8 @@
     const near = e => { const r = no.getBoundingClientRect(); if (Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) < Math.max(70, r.width * .6)) flee(); };
     addEventListener("pointermove", near, { passive: true });
     const key = e => { if (e.key === "Escape") { e.preventDefault(); flee(); }
-      if (e.key === "Tab") { e.preventDefault(); yes.focus({ preventScroll: true }); } };   // focus stays in the window: nothing behind it is reachable addEventListener("keydown", key);
+      if (e.key === "Tab") { e.preventDefault(); yes.focus({ preventScroll: true }); } };   // focus stays in the window: nothing behind it is reachable
+    addEventListener("keydown", key);
 
     // "Yes": darkness opens from the eyes, a raven crosses, then the real portfolio
     yes.addEventListener("click", () => {
