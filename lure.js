@@ -1,6 +1,7 @@
 /* THE LURE: the calm Aurora portfolio admits it is the boring one.
-   Once the bait has settled (15 s on the page and 4 s reading Selected work, or 30 s idle), or at once on any section
-   link, the page glitches and a window rises.
+   Shortly after Selected work comes into view (1.5 s, or at once if they scroll past its heading), after 14 s at the
+   top, at once on touching anything interactive, and at once on every refresh after it first appeared, the page
+   glitches and a window rises. Aurora can never actually be browsed or used: that is a hard rule.
    Two gold raven eyes watch you through a slit in it: they follow your cursor or finger, blink, dart about when you
    stop, stare at "Yes" with wide pupils when you go near it, and narrow when you leave the window.
    "Yes" opens the dark, sends a raven across and takes you to the real portfolio (Blackwing).
@@ -86,7 +87,9 @@
 
   function show(sec) {
     if (shown) return; shown = true;
-    if (document.querySelector(".modal:not([hidden])")) { shown = false; setTimeout(() => show(sec), 4000); return; }   // not while a build is open
+    try { sessionStorage.setItem("lure-shown", "1"); } catch {}   // from now on a refresh shows it again at once
+    // a build somehow open: close it and stop the game, the popup always wins
+    document.querySelectorAll(".modal:not([hidden])").forEach(m => { m.querySelectorAll("iframe").forEach(f => f.remove()); m.hidden = true; });
     const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
     // the runes need a font that has them (not every phone does): a tiny subset of Noto Sans Runic, just these 24 letters
     const fl = document.createElement("link"); fl.rel = "stylesheet"; fl.href = "https://fonts.googleapis.com/css2?family=Noto+Sans+Runic&display=swap&text=" + encodeURIComponent("ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ"); document.head.appendChild(fl);
@@ -196,29 +199,37 @@
     });
   }
 
-  // Triggers. A CV project link: right away. A section link (click, or opened in a new tab with its #hash): at once.
-  // Otherwise the bait settles first: the popup waits until the visitor has been on the page 15 s AND has been looking
-  // at the first project card for 4 s (they believe it is a normal portfolio and have started reading the work), or
-  // 30 s if they never scroll. Only time with the tab visible counts.
+  // Triggers. HARD RULE (from Mazen): Aurora can never be used. Touching anything interactive opens the popup at once and
+  // the action never happens, and once the popup has appeared in a tab, every refresh brings it straight back.
+  // Otherwise the bait gets a short moment: 1.5 s after Selected work rises into view, at once if they scroll on into
+  // the first row of projects, or after 14 s if they stay at the top.
+  const SEEN = "lure-shown";
+  let again = false; try { again = !!sessionStorage.getItem(SEEN); } catch {}
   if (WORK) { setTimeout(show, 1500); return; }
+  if (again) { setTimeout(show, 400); return; }   // refresh after the popup appeared: no second look at the bait
   const hashSec = location.hash.slice(1);
   if (hashSec in SECTION_TO) { setTimeout(() => show(hashSec), 700); return; }
-  document.addEventListener("click", ev => {
-    const a = ev.target.closest('a[href^="#"]');
-    if (!a || ev.button !== 0 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return;   // modified clicks open a new tab, handled above
-    ev.preventDefault(); ev.stopImmediatePropagation(); show(a.getAttribute("href").slice(1) || "top");
-  }, true);
-  const SETTLE = 15000, DWELL = 4000, IDLE = 30000, STEP = 250;
-  let onPage = 0, onWork = 0, seenWork = false;
-  // the section, not a card: main.js re-renders the cards (a watched card would be replaced and never fire)
+  // Any click, tap, middle-click or keyboard activation on something interactive (links, buttons, cards, chips, Play,
+  // the form) is swallowed and opens the popup. Clicks inside the popup itself are left alone.
+  const HOT = "a, button, input, select, textarea, label, summary, video, iframe, [role=button], [tabindex], [onclick], .card, .chip";
+  const grab = ev => {
+    const el = ev.target.closest && ev.target.closest(HOT);
+    if (!el || el.closest(".lure-veil")) return;
+    ev.preventDefault(); ev.stopImmediatePropagation(); show("top");
+  };
+  // click covers taps and Enter/Space; not pointerdown/touchstart, so a scroll-swipe that starts on a card still scrolls
+  for (const type of ["click", "auxclick", "submit"]) document.addEventListener(type, grab, true);
+  document.addEventListener("focusin", ev => { if (ev.target.matches && ev.target.matches("input, select, textarea") && !ev.target.closest(".lure-veil")) show("top"); }, true);
+  const AT_WORK = 1500, IDLE = 14000, STEP = 250;
+  let onPage = 0, onWork = 0;
   const work = document.getElementById("work");
-  if (work && "IntersectionObserver" in window)
-    // Selected work has risen into the upper 60% of the screen (any section or screen height)
-    new IntersectionObserver(es => { if (es[0].isIntersecting) seenWork = true; }, { rootMargin: "0px 0px -40% 0px" }).observe(work);
   const tick = setInterval(() => {
     if (shown) return clearInterval(tick);
-    if (document.hidden) return;
-    onPage += STEP; if (seenWork) onWork += STEP;   // once they reach the work, the dwell keeps counting as they read on
-    if (onPage >= IDLE || (onPage >= SETTLE && onWork >= DWELL)) { clearInterval(tick); show("work"); }
+    if (document.hidden) return;   // a background tab does not count
+    onPage += STEP;
+    const top = work ? work.getBoundingClientRect().top : Infinity;
+    if (top < innerHeight * 0.6) onWork += STEP;   // Selected work has risen into the upper 60% of the screen
+    // scrolling on into the first row (the heading has left the top) also fires at once: they never get past it
+    if (onPage >= IDLE || onWork >= AT_WORK || top < -innerHeight * 0.05) { clearInterval(tick); show("work"); }
   }, STEP);
 })();
